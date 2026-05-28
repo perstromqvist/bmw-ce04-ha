@@ -6,6 +6,12 @@ from homeassistant.util import slugify
 
 from .const import ATTR_BIKE_ID, ATTR_RAW, DOMAIN
 
+_COLOR_IMAGE_MAP = {
+    "P0N3H": "white",
+    "P0NB5": "blue",
+    "P0N2M": "silver",
+}
+
 
 class CE04Entity(CoordinatorEntity):
     """Base entity for BMW CE 04."""
@@ -29,22 +35,25 @@ class CE04Entity(CoordinatorEntity):
         return slugify(self.bike_name)
 
     @property
+    def entity_picture(self) -> str | None:
+        color = str(self.bike.color or "").upper()
+        image_name = _COLOR_IMAGE_MAP.get(color, "white")
+        return f"/local/{image_name}.png"
+
+    @property
     def device_info(self) -> DeviceInfo:
         bike = self.bike
-
         model_parts: list[str] = ["CE 04"]
         if bike.type_key:
             model_parts.append(f"({bike.type_key})")
         if bike.color:
             model_parts.append(bike.color)
 
-        model = " ".join(model_parts)
-
         return DeviceInfo(
             identifiers={(DOMAIN, self._bike_id)},
             manufacturer="BMW Motorrad",
             name=self.bike_name,
-            model=model,
+            model=" ".join(model_parts),
         )
 
     @property
