@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
@@ -21,34 +22,35 @@ class CE04BinarySensorDescription(BinarySensorEntityDescription):
 
 
 BINARY_SENSORS: tuple[CE04BinarySensorDescription, ...] = (
-    # CE 04 is EV — alert on battery, not fuel
     CE04BinarySensorDescription(
         key="low_battery",
         name="Low battery",
         icon="mdi:battery-alert",
-        value_fn=lambda bike: (bike.battery_level or 100) <= 20,
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        value_fn=lambda bike: bike.battery_level is not None and bike.battery_level <= 20,
     ),
     CE04BinarySensorDescription(
         key="front_tire_pressure_low",
         name="Front tire pressure low",
         icon="mdi:car-tire-alert",
-        # CE 04 spec: front 2.5 bar, warn below 2.3
-        value_fn=lambda bike: (bike.tire_pressure_front_bar or 0) < 2.3,
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        # Tröskel 2.1 bar för att ge marginal
+        value_fn=lambda bike: bike.tire_pressure_front_bar is not None and bike.tire_pressure_front_bar < 2.1,
     ),
     CE04BinarySensorDescription(
         key="rear_tire_pressure_low",
         name="Rear tire pressure low",
         icon="mdi:car-tire-alert",
-        # CE 04 spec: rear 2.9 bar, warn below 2.6
-        value_fn=lambda bike: (bike.tire_pressure_rear_bar or 0) < 2.6,
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        # Tröskel 2.3 bar för att ge marginal
+        value_fn=lambda bike: bike.tire_pressure_rear_bar is not None and bike.tire_pressure_rear_bar < 2.3,
     ),
     CE04BinarySensorDescription(
         key="service_due_soon",
         name="Service due soon",
         icon="mdi:wrench",
-        value_fn=lambda bike: (
-            bike.next_service_remaining_distance_km or 999999
-        ) < 1000,
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        value_fn=lambda bike: bike.next_service_remaining_distance_km is not None and bike.next_service_remaining_distance_km < 1000,
     ),
 )
 
