@@ -45,6 +45,9 @@ class CE04ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             user_input = dict(user_input)
             user_input[CONF_CLIENT_ID] = user_input[CONF_CLIENT_ID].strip().lower()
+            
+            # Hårdkoda region/språk till en-EN i bakgrunden här
+            user_input[CONF_COUNTRY] = "en-EN"
             self._user_input = user_input
 
             await self.async_set_unique_id(user_input[CONF_CLIENT_ID])
@@ -75,10 +78,10 @@ class CE04ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._code_verifier = code.code_verifier
                 return await self.async_step_authorize()
 
+        # CONF_COUNTRY borttaget härifrån, så det döljs i gränssnittet
         schema = vol.Schema(
             {
                 vol.Required(CONF_CLIENT_ID): str,
-                vol.Required(CONF_COUNTRY, default="en-EN"): str,
                 vol.Required(CONF_API_HOST, default=DEFAULT_API_HOST): str,
                 vol.Required(CONF_AUTH_HOST, default=DEFAULT_AUTH_HOST): str,
                 vol.Required(CONF_POLL_INTERVAL, default=DEFAULT_POLL_INTERVAL): int,
