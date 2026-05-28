@@ -3,9 +3,8 @@
   "name": "BMW CE 04",
   "version": "1.0.0",
   "documentation": "https://github.com/perstromqvist/bmw-ce04-ha",
-  "dependencies": [],
-  "codeowners": [],
-  "requirements": [],
+  "issue_tracker": "https://github.com/perstromqvist/bmw-ce04-ha/issues",
+  "codeowners": ["@perstromqvist"],
   "iot_class": "cloud_polling",
-  "config_flow": true
+  "requirements": []
 }
