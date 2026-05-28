@@ -29,51 +29,29 @@ class CE04Data:
     type_key: str | None
     color: str | None
 
-    # EV-specific — the CE 04 has no combustion engine
-    battery_level: int | float | None                  # State of charge in %
-    remaining_range_electric_km: float | None          # Electric range remaining
-    charging_time_estimation_electric: int | None       # Remaining charging time in minutes
-    soc_max_electric: int | float | None               # Battery State of Health / Max Capacity %
+    battery_level: int | float | None
+    remaining_range_electric_km: float | None
+    charging_time_estimation_electric: int | None
+    soc_max_electric: int | float | None
 
-    # Odometer / trip
     total_mileage_km: float | None
     trip1_km: float | None
     trip2_km: float | None
     total_connected_distance_km: float | None
 
-    # Service
     next_service_remaining_distance_km: float | None
     next_service_due_date: datetime | None
 
-    # Tyre pressures
     tire_pressure_front_bar: float | None
     tire_pressure_rear_bar: float | None
 
-    # Timestamps
     last_connected_time: datetime | None
     last_activated_time: datetime | None
 
-    # Location
     latitude: float | None
     longitude: float | None
 
-    # Keep the raw payload for debugging / future sensors
     raw: dict[str, Any]
-
-    @property
-    def entity_picture(self) -> str:
-        """Return the entity picture URL based on the bike color."""
-        color_images = {
-            "P0NB5": "bmw-ce-04-white.jpg",     # Light White
-            "P0A89": "bmw-ce-04-blue.jpg",      # Imperial Blue Metallic
-            "A89": "bmw-ce-04-blue.jpg",
-            "WM4S": "bmw-ce-04-silver.jpg",    # Magellan Grey Metallic (mappas till silver)
-            "M4S": "bmw-ce-04-silver.jpg",
-            "M4E": "bmw-ce-04-silver.jpg",     # Space Silver Metallic
-        }
-        # Fallback till vit bild om färgkoden inte känns igen eller saknas
-        image_file = color_images.get(self.color, "bmw-ce-04-white.jpg")
-        return f"/local/community/bmw_ce04/{image_file}"
 
     @classmethod
     def from_api(cls, data: dict[str, Any]) -> "CE04Data":
@@ -86,12 +64,7 @@ class CE04Data:
             or "ce04"
         )
 
-        # The CE 04 reports state-of-charge as energyLevel (0-100 %)
-        # Some firmware versions may also populate fuelLevel with the same value;
-        # prefer energyLevel, fall back to fuelLevel.
         battery_level = data.get("energyLevel") or data.get("fuelLevel")
-
-        # remainingRangeElectric is the primary field; remainingRange is a fallback
         remaining_range_electric_raw = (
             data.get("remainingRangeElectric") or data.get("remainingRange")
         )
