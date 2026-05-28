@@ -30,12 +30,15 @@ class CE04Data:
     color: str | None
 
     # EV-specific — the CE 04 has no combustion engine
-    battery_level: int | float | None          # State of charge in %
-    remaining_range_electric_km: float | None  # Electric range remaining
+    battery_level: int | float | None                  # State of charge in %
+    remaining_range_electric_km: float | None          # Electric range remaining
+    charging_time_estimation_electric: int | None       # Remaining charging time in minutes
+    soc_max_electric: int | float | None               # Battery State of Health / Max Capacity %
 
     # Odometer / trip
     total_mileage_km: float | None
     trip1_km: float | None
+    trip2_km: float | None
     total_connected_distance_km: float | None
 
     # Service
@@ -86,8 +89,11 @@ class CE04Data:
             color=data.get("color"),
             battery_level=battery_level,
             remaining_range_electric_km=_div_1000(remaining_range_electric_raw),
+            charging_time_estimation_electric=data.get("chargingTimeEstimationElectric"),
+            soc_max_electric=data.get("socMaxElectric"),
             total_mileage_km=_div_1000(data.get("totalMileage")),
             trip1_km=_div_1000(data.get("trip1")),
+            trip2_km=_div_1000(data.get("trip2")),
             total_connected_distance_km=_div_1000(data.get("totalConnectedDistance")),
             next_service_remaining_distance_km=_div_1000(
                 data.get("nextServiceRemainingDistance")
