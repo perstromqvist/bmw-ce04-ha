@@ -24,7 +24,7 @@ Custom Home Assistant integration for the BMW CE 04 electric scooter, using the 
 
 ## What it does
 
-Pulls live data from the BMW Motorrad cloud and creates Home Assistant entities:
+Pulls data from the BMW Motorrad cloud and creates Home Assistant entities:
 
 - **EV Battery & Charging:**
   - Battery level (%)
