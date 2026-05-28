@@ -22,7 +22,7 @@ Read-only — no commands are sent to the scooter.
 
 - Home Assistant
 - HACS or manual install
-- A BMW CarData client ID from the BMW CarData portal([https://bmw-cardata.bmwgroup.com/customer/public/home])
+- A BMW CarData client ID from the BMW CarData portal ([https://bmw-cardata.bmwgroup.com/customer/public/home])
 - A BMW Motorrad account with ConnectedRide / cloud data enabled
 
 ## Installation via HACS
