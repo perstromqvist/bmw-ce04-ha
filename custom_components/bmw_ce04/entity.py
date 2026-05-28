@@ -40,17 +40,11 @@ class CE04Entity(CoordinatorEntity):
 
         model = " ".join(model_parts)
 
-        sw_version = None
-        if bike.raw.get("_version") is not None:
-            sw_version = str(bike.raw.get("_version"))
-
         return DeviceInfo(
             identifiers={(DOMAIN, self._bike_id)},
             manufacturer="BMW Motorrad",
             name=self.bike_name,
             model=model,
-            serial_number=bike.vin or self._bike_id,
-            sw_version=sw_version,
         )
 
     @property
