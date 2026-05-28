@@ -6,10 +6,10 @@
   </a>
 
   <a href="https://github.com/perstromqvist/bmw-ce-04-ha/releases">
-    <img src="https://img.shields.io/github/v/release/perstromqvist/bmw-ce-04-ha?style=for-the-badge&color=blue" alt="Latest Release">
+    <img src="https://img.shields.io/github/v/release/perstromqvist/bmw-ce04-ha?style=for-the-badge&color=blue" alt="Latest Release">
   </a>
 
-  <a href="https://github.com/perstromqvist/bmw-ce-04-ha/blob/main/LICENSE">
+  <a href="https://github.com/perstromqvist/bmw-ce04-ha/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License MIT">
   </a>
 
