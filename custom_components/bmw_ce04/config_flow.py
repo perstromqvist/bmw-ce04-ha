@@ -19,7 +19,6 @@ from .const import (
     CONF_VERIFY_SSL,
     DEFAULT_API_HOST,
     DEFAULT_AUTH_HOST,
-    DEFAULT_COUNTRY,
     DEFAULT_POLL_INTERVAL,
     DOMAIN,
 )
@@ -79,7 +78,7 @@ class CE04ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         schema = vol.Schema(
             {
                 vol.Required(CONF_CLIENT_ID): str,
-                vol.Required(CONF_COUNTRY, default=DEFAULT_COUNTRY): str,
+                vol.Required(CONF_COUNTRY, default="en-EN"): str,
                 vol.Required(CONF_API_HOST, default=DEFAULT_API_HOST): str,
                 vol.Required(CONF_AUTH_HOST, default=DEFAULT_AUTH_HOST): str,
                 vol.Required(CONF_POLL_INTERVAL, default=DEFAULT_POLL_INTERVAL): int,
