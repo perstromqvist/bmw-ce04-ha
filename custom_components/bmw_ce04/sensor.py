@@ -10,7 +10,13 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import EntityCategory, PERCENTAGE, UnitOfLength, UnitOfPressure
+from homeassistant.const import (
+    EntityCategory,
+    PERCENTAGE,
+    UnitOfLength,
+    UnitOfPressure,
+    UnitOfTime,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -25,6 +31,14 @@ class CE04SensorDescription(SensorEntityDescription):
 
 SENSORS: tuple[CE04SensorDescription, ...] = (
     # ---- EV battery --------------------------------------------------
+    # Bildsensor som ändras baserat på färgkod
+    CE04SensorDescription(
+        key="bike_image",
+        name="Bike image",
+        icon="mdi:motorbike",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda bike: bike.color,
+    ),
     CE04SensorDescription(
         key="battery_level",
         name="Battery level",
@@ -64,6 +78,16 @@ SENSORS: tuple[CE04SensorDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         suggested_display_precision=0,
         value_fn=lambda bike: bike.trip1_km,
+    ),
+    CE04SensorDescription(
+        key="trip2",
+        name="Trip 2",
+        icon="mdi:road-variant",
+        device_class=SensorDeviceClass.DISTANCE,
+        native_unit_of_measurement=UnitOfLength.KILOMETERS,
+        state_class=SensorStateClass.TOTAL,
+        suggested_display_precision=0,
+        value_fn=lambda bike: bike.trip2_km,
     ),
     # ---- Tyre pressures ----------------------------------------------
     CE04SensorDescription(
@@ -126,7 +150,7 @@ SENSORS: tuple[CE04SensorDescription, ...] = (
         name="Charging time estimation",
         icon="mdi:battery-clock",
         device_class=SensorDeviceClass.DURATION,
-        native_unit_of_measurement=UnitOfTime.MINUTES, # Se till att UnitOfTime är importerad från homeassistant.const
+        native_unit_of_measurement=UnitOfTime.MINUTES,
         entity_category=EntityCategory.DIAGNOSTIC,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
@@ -140,16 +164,6 @@ SENSORS: tuple[CE04SensorDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda bike: bike.soc_max_electric,
-    ),
-    CE04SensorDescription(
-        key="trip2",
-        name="Trip 2",
-        icon="mdi:road-variant",
-        device_class=SensorDeviceClass.DISTANCE,
-        native_unit_of_measurement=UnitOfLength.KILOMETERS,
-        state_class=SensorStateClass.TOTAL,
-        suggested_display_precision=0,
-        value_fn=lambda bike: bike.trip2_km,
     ),
 )
 
@@ -165,23 +179,4 @@ class CE04Sensor(CE04Entity, SensorEntity):
     ) -> None:
         super().__init__(coordinator, bike_id)
         self.entity_description = description
-        self._attr_unique_id = f"v1_{self.bike_slug}_{description.key}"
-        self._attr_suggested_object_id = f"{self.bike_slug}_{description.key}"
-
-    @property
-    def native_value(self):
-        return self.entity_description.value_fn(self.bike)
-
-
-async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
-) -> None:
-    coordinator = entry.runtime_data.coordinator
-    entities: list[SensorEntity] = [
-        CE04Sensor(coordinator, bike_id, description)
-        for bike_id in coordinator.data
-        for description in SENSORS
-    ]
-    async_add_entities(entities)
+        self._attr_unique_id = f"v1_{self
