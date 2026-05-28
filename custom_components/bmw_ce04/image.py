@@ -27,7 +27,6 @@ class CE04BikeImage(CE04Entity, ImageEntity):
         super().__init__(coordinator, bike_id)
         self._attr_name = "Vehicle Image"
         self._attr_unique_id = f"{self.bike_slug}_vehicle_image"
-        # För att den ska dyka upp snyggt i enhetsvyn
         self._attr_suggested_object_id = f"{self.bike_slug}_vehicle_image"
 
     @property
@@ -41,3 +40,11 @@ class CE04BikeImage(CE04Entity, ImageEntity):
         }
         image_name = color_map.get(raw_color, "white")
         return f"/local/{image_name}.png"
+
+    async def async_image(self) -> bytes | None:
+        """Return the image bytes."""
+        # Eftersom vi pekar på en URL i /local/, behöver vi inte returnera bytes 
+        # om vi implementerar async_get_image, men för att undvika 
+        # access_token-kraschen räcker det ofta att returnera None här 
+        # om man använder image_url.
+        return None
