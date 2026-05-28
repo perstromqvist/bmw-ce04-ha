@@ -53,8 +53,8 @@ Pulls data from the BMW Motorrad cloud and creates Home Assistant entities:
 ## Requirements
 
 - Home Assistant
-- HACS or manual install
-- A BMW CarData Client ID from the BMW CarData portal ([https://bmw-cardata.bmwgroup.com/customer/public/home])
+- HACS
+- A BMW CarData Client ID from the BMW CarData portal (This is the most critical part; if you don't already have a CarData Client ID, follow those instructions on [https://bmw-cardata.bmwgroup.com/customer/public/home](https://github.com/kvanbiesen/bmw-cardata-ha)] first and proceed with this integration afterwards).
 - A BMW Motorrad account with ConnectedRide / cloud sync enabled in the app
 
 ## Installation via HACS
@@ -64,10 +64,3 @@ Pulls data from the BMW Motorrad cloud and creates Home Assistant entities:
 3. Paste the URL to this repository, select **Integration** as the category, and click **Add**
 4. Click on the **BMW Motorrad CE 04** card, select **Download**
 5. **Restart Home Assistant**
-
-## Manual installation
-
-Copy the `custom_components/bmw_ce04` folder into your HA configuration directory:
-
-```text
-/config/custom_components/bmw_ce04/
