@@ -49,3 +49,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+"""The BMW CE 04 integration."""
+import logging
+
+_LOGGER = logging.getLogger(__name__)
+DOMAIN = "bmw_ce04"
+
+async def async_setup(hass, config):
+    """Set up the BMW CE 04 component."""
+    return True
