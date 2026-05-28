@@ -30,7 +30,7 @@ class CE04SensorDescription(SensorEntityDescription):
 
 
 SENSORS: tuple[CE04SensorDescription, ...] = (
-    # ... (dina befintliga sensorer här) ...
+    # ---- EV battery --------------------------------------------------
     CE04SensorDescription(
         key="battery_level",
         name="Battery level",
@@ -40,7 +40,137 @@ SENSORS: tuple[CE04SensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda bike: bike.battery_level,
     ),
-    # ... (behåll alla dina övriga sensorer som de var) ...
+    CE04SensorDescription(
+        key="remaining_range",
+        name="Remaining range",
+        icon="mdi:map-marker-distance",
+        device_class=SensorDeviceClass.DISTANCE,
+        native_unit_of_measurement=UnitOfLength.KILOMETERS,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        value_fn=lambda bike: bike.remaining_range_electric_km,
+    ),
+    # ---- Odometer / trip ---------------------------------------------
+    CE04SensorDescription(
+        key="total_mileage",
+        name="Total mileage",
+        icon="mdi:speedometer",
+        device_class=SensorDeviceClass.DISTANCE,
+        native_unit_of_measurement=UnitOfLength.KILOMETERS,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        suggested_display_precision=0,
+        value_fn=lambda bike: bike.total_mileage_km,
+    ),
+    CE04SensorDescription(
+        key="trip1",
+        name="Trip 1",
+        icon="mdi:road-variant",
+        device_class=SensorDeviceClass.DISTANCE,
+        native_unit_of_measurement=UnitOfLength.KILOMETERS,
+        state_class=SensorStateClass.TOTAL,
+        suggested_display_precision=0,
+        value_fn=lambda bike: bike.trip1_km,
+    ),
+    CE04SensorDescription(
+        key="trip2",
+        name="Trip 2",
+        icon="mdi:road-variant",
+        device_class=SensorDeviceClass.DISTANCE,
+        native_unit_of_measurement=UnitOfLength.KILOMETERS,
+        state_class=SensorStateClass.TOTAL,
+        suggested_display_precision=0,
+        value_fn=lambda bike: bike.trip2_km,
+    ),
+    # ---- Tyre pressures ----------------------------------------------
+    CE04SensorDescription(
+        key="tire_pressure_front",
+        name="Tire pressure front",
+        icon="mdi:gauge",
+        native_unit_of_measurement=UnitOfPressure.BAR,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        value_fn=lambda bike: bike.tire_pressure_front_bar,
+    ),
+    CE04SensorDescription(
+        key="tire_pressure_rear",
+        name="Tire pressure rear",
+        icon="mdi:gauge",
+        native_unit_of_measurement=UnitOfPressure.BAR,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        value_fn=lambda bike: bike.tire_pressure_rear_bar,
+    ),
+    # ---- Service & Diagnostics ----------------------------------------
+    CE04SensorDescription(
+        key="vin",
+        name="VIN",
+        icon="mdi:barcode",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda bike: bike.vin,
+    ),
+    CE04SensorDescription(
+        key="sw_version",
+        name="Software version",
+        icon="mdi:chip",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda bike: str(bike.raw.get("_version")) if bike.raw.get("_version") is not None else None,
+    ),
+    CE04SensorDescription(
+        key="next_service_due_date",
+        name="Next service due date",
+        icon="mdi:wrench-clock",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda bike: bike.next_service_due_date,
+    ),
+    CE04SensorDescription(
+        key="next_service_remaining_distance",
+        name="Next service remaining distance",
+        icon="mdi:wrench-outline",
+        device_class=SensorDeviceClass.DISTANCE,
+        native_unit_of_measurement=UnitOfLength.KILOMETERS,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        value_fn=lambda bike: bike.next_service_remaining_distance_km,
+    ),
+    # ---- Connectivity (diagnostic) -----------------------------------
+    CE04SensorDescription(
+        key="last_connected_time",
+        name="Last connected time",
+        icon="mdi:clock-check-outline",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda bike: bike.last_connected_time,
+    ),
+    CE04SensorDescription(
+        key="last_activated_time",
+        name="Last activated time",
+        icon="mdi:clock-start",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda bike: bike.last_activated_time,
+    ),
+    CE04SensorDescription(
+        key="charging_time_estimation",
+        name="Charging time estimation",
+        icon="mdi:battery-clock",
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.MINUTES,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        value_fn=lambda bike: bike.charging_time_estimation_electric,
+    ),
+    CE04SensorDescription(
+        key="battery_soh",
+        name="Battery maximum capacity",
+        icon="mdi:battery-heart-variant",
+        native_unit_of_measurement=PERCENTAGE,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda bike: bike.soc_max_electric,
+    ),
 )
 
 
@@ -61,22 +191,6 @@ class CE04Sensor(CE04Entity, SensorEntity):
     @property
     def native_value(self):
         return self.entity_description.value_fn(self.bike)
-
-    @property
-    def entity_picture(self) -> str | None:
-        """Dynamisk bild för hojen utan att kräva ImageEntity-tokens."""
-        # Se till att self.bike finns
-        if not self.bike or not self.bike.color:
-            return "/local/white.png"
-            
-        raw_color = str(self.bike.color).upper()
-        color_map = {
-            "P0N3H": "white",
-            "P0NB5": "blu",
-            "P0N2M": "silver",
-        }
-        image_name = color_map.get(raw_color, "white")
-        return f"/local/{image_name}.png"
 
 
 async def async_setup_entry(
