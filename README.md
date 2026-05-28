@@ -20,7 +20,7 @@
 
 ***
 
-Custom Home Assistant integration for the BMW CE 04 electric scooter, using the BMW ConnectedRide / CarData cloud API.
+Custom Home Assistant integration for the BMW Motorrad CE 04 electric scooter, using the BMW ConnectedRide / CarData cloud API.
 
 ## What it does
 
