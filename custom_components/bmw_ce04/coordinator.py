@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import logging
-import json  # Tillagt för att spara JSON
-import os    # Tillagt för filhantering
+import json
+import os
 from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
@@ -38,15 +38,18 @@ class CE04Coordinator(DataUpdateCoordinator[dict[str, CE04Data]]):
             bikes = await self.client.async_get_bikes()
             
             # --- DEBUG: Spara rådata till en fil ---
-            # Vi sparar datan i config-mappen så den är lätt att nå via VS Code
             dump_path = os.path.join(self.hass.config.config_dir, "bmw_ce04_raw_debug.json")
             
-            # Vi konverterar bike-objekten till en enkel lista av dictionaries för att kunna spara som JSON
-            # Om din CE04Data har en __dict__ eller as_dict metod, använd den
-            raw_data_to_save = [bike.__dict__ for bike in bikes] 
+            # Skapar en lista av dicts genom att iterera över objektens publika attribut
+            raw_data_to_save = []
+            for bike in bikes:
+                # Plockar ut alla attribut som inte börjar med underscore
+                bike_dict = {attr: getattr(bike, attr) for attr in dir(bike) if not attr.startswith('_')}
+                raw_data_to_save.append(bike_dict)
             
             with open(dump_path, "w", encoding="utf-8") as f:
-                json.dump(raw_data_to_save, f, indent=4)
+                # default=str hanterar eventuella datumobjekt som inte går att direkt-JSONa
+                json.dump(raw_data_to_save, f, indent=4, default=str)
             # --------------------------------------
 
         except CE04AuthError as err:
