@@ -7,7 +7,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .entity import CE04Entity
 
-
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -18,7 +17,6 @@ async def async_setup_entry(
     async_add_entities(
         [CE04BikeImage(coordinator, bike_id) for bike_id in coordinator.data]
     )
-
 
 class CE04BikeImage(CE04Entity, ImageEntity):
     """Representation of the BMW CE 04 bike image."""
@@ -31,8 +29,11 @@ class CE04BikeImage(CE04Entity, ImageEntity):
 
     @property
     def image_url(self) -> str | None:
-        """Return the URL of the image."""
-        raw_color = str(self.bike.color).upper() if self.bike.color else ""
+        """Return the URL of the image based on bike color."""
+        if not self.bike or not self.bike.color:
+            return "/local/white.png" # Fallback
+            
+        raw_color = str(self.bike.color).upper()
         color_map = {
             "P0N3H": "white",
             "P0NB5": "blu",
@@ -41,10 +42,14 @@ class CE04BikeImage(CE04Entity, ImageEntity):
         image_name = color_map.get(raw_color, "white")
         return f"/local/{image_name}.png"
 
-    async def async_image(self) -> bytes | None:
-        """Return the image bytes."""
-        # Eftersom vi pekar på en URL i /local/, behöver vi inte returnera bytes 
-        # om vi implementerar async_get_image, men för att undvika 
-        # access_token-kraschen räcker det ofta att returnera None här 
-        # om man använder image_url.
-        return None
+    @property
+    def extra_state_attributes(self) -> dict:
+        """Return the state attributes."""
+        return {"color_code": self.bike.color}
+
+    # VIKTIGT: För att ImageEntity inte ska krascha vid sök efter access_tokens,
+    # tvingar vi den att använda vår image_url genom att inte sätta 
+    # de interna token-attributen.
+    @property
+    def state(self) -> str | None:
+        return self.image_url
