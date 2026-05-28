@@ -22,7 +22,7 @@ Read-only — no commands are sent to the scooter.
 
 - Home Assistant
 - HACS or manual install
-- A BMW CarData client ID from the [BMW CarData portal](https://www.bmw-motorrad.nl/nl/my-bmw-motorrad-vm4/my-garage.html#/my-bike/)
+- A BMW CarData client ID from the BMW CarData portal([https://bmw-cardata.bmwgroup.com/customer/public/home])
 - A BMW Motorrad account with ConnectedRide / cloud data enabled
 
 ## Installation via HACS
@@ -48,7 +48,7 @@ Settings → Devices & Services → Add Integration → search **BMW CE 04**
 Fill in:
 
 - **BMW CarData Client ID** — from the BMW CarData portal
-- **Country code** — e.g. `sv-SE`, `nl-NL`, `de-DE`
+- **Country code** — e.g. `en-EN`
 - **Motorrad API host** — default `https://cpp.bmw-motorrad.com`
 - **BMW CarData auth host** — default `https://customer.bmwgroup.com`
 - **Poll interval** — default `300` seconds
@@ -57,9 +57,7 @@ Fill in:
 You will then be prompted to open a BMW verification URL and approve the device. After approval, click Submit.
 
 ## Credits
-
 Authentication and API structure based on [Memphius/Motorrad_hassio](https://github.com/Memphius/Motorrad_hassio), adapted for the CE 04 electric scooter.
 
 ## Disclaimer
-
 Not affiliated with BMW or BMW Motorrad. Use at your own risk.
