@@ -1,4 +1,24 @@
-# BMW CE 04 — Home Assistant Integration
+# BMW Motorrad CE 04 — Home Assistant Integration
+
+<p align="center">
+  <a href="https://github.com/hacs/integration">
+    <img src="https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge" alt="HACS Custom">
+  </a>
+
+  <a href="https://github.com/perstromqvist/bmw-ce-04-ha/releases">
+    <img src="https://img.shields.io/github/v/release/perstromqvist/bmw-ce-04-ha?style=for-the-badge&color=blue" alt="Latest Release">
+  </a>
+
+  <a href="https://github.com/perstromqvist/bmw-ce-04-ha/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License MIT">
+  </a>
+
+  <a href="https://www.home-assistant.io">
+    <img src="https://img.shields.io/badge/Home--Assistant-Compatible-blueviolet.svg?style=for-the-badge&logo=home-assistant" alt="Home Assistant">
+  </a>
+</p>
+
+***
 
 Custom Home Assistant integration for the BMW CE 04 electric scooter, using the BMW ConnectedRide / CarData cloud API.
 
@@ -23,7 +43,8 @@ Pulls live data from the BMW Motorrad cloud and creates Home Assistant entities:
   - Last connected and last activated timestamps
 - **Location:**
   - Last known GPS location (device tracker)
-- **Binary Sensors:** - Low battery, low tyre pressure (front/rear), service due soon
+- **Binary Sensors:**
+  - Low battery, low tyre pressure (front/rear), service due soon
 - **Dynamic Presentation:**
   - Dynamic vehicle image sensor (`sensor.bmw_ce04_bike_image`) that automatically renders the correct official scooter visual matching your vehicle's specific color code (`Light White`, `Imperial Blue`, or `Magellan Grey / Space Silver`).
 
