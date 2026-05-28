@@ -32,13 +32,6 @@ class CE04SensorDescription(SensorEntityDescription):
 SENSORS: tuple[CE04SensorDescription, ...] = (
     # ---- EV battery --------------------------------------------------
     CE04SensorDescription(
-        key="bike_image",
-        name="Bike image",
-        icon="mdi:motorbike",
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda bike: bike.color,
-    ),
-    CE04SensorDescription(
         key="battery_level",
         name="Battery level",
         icon="mdi:battery-charging",
@@ -198,23 +191,6 @@ class CE04Sensor(CE04Entity, SensorEntity):
     @property
     def native_value(self):
         return self.entity_description.value_fn(self.bike)
-
-    @property
-    def entity_picture(self) -> str | None:
-        """Return the custom bike image if this is the bike image sensor."""
-        if self.entity_description.key == "bike_image":
-            raw_color = str(self.bike.color).upper() if self.bike.color else ""
-
-            color_map = {
-                "P0N3H": "white",
-                "P0NB5": "blu",
-                "P0N2M": "silver",
-            }
-
-            image_name = color_map.get(raw_color, "white")
-            return f"/local/{image_name}.png"
-            
-        return super().entity_picture
 
 
 async def async_setup_entry(
