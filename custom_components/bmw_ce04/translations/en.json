@@ -24,5 +24,40 @@
     "abort": {
       "already_configured": "BMW CE 04 is already configured."
     }
+  },
+  "entity": {
+    "sensor": {
+      "battery_level": {
+        "name": "Battery Level"
+      },
+      "range": {
+        "name": "Range"
+      },
+      "odometer": {
+        "name": "Odometer"
+      },
+      "trip1": {
+        "name": "Trip 1"
+      },
+      "trip2": {
+        "name": "Trip 2"
+      },
+      "last_updated": {
+        "name": "Last Updated"
+      }
+    },
+    "binary_sensor": {
+      "charging": {
+        "name": "Charging"
+      },
+      "low_battery": {
+        "name": "Low Battery"
+      }
+    },
+    "image": {
+      "vehicle_image": {
+        "name": "Vehicle Image"
+      }
+    }
   }
 }
