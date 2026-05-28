@@ -6,7 +6,6 @@
         "description": "Enter your BMW CarData client ID and region settings.",
         "data": {
           "client_id": "BMW CarData Client ID",
-          "country": "Locale / Language code (default: en-EN)",
           "api_host": "Motorrad API host",
           "auth_host": "BMW CarData auth host",
           "poll_interval": "Poll interval (seconds)",
