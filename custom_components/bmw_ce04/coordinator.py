@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import logging
+import dataclasses
 import json
+import logging
 import os
 from datetime import timedelta
 
@@ -36,26 +37,26 @@ class CE04Coordinator(DataUpdateCoordinator[dict[str, CE04Data]]):
     async def _async_update_data(self) -> dict[str, CE04Data]:
         try:
             bikes = await self.client.async_get_bikes()
-            
-            # --- DEBUG: Spara rådata till en fil via executor ---
-            dump_path = os.path.join(self.hass.config.config_dir, "bmw_ce04_raw_debug.json")
-            
-            raw_data_to_save = []
-            for bike in bikes:
-                bike_dict = {attr: getattr(bike, attr) for attr in dir(bike) if not attr.startswith('_')}
-                raw_data_to_save.append(bike_dict)
-            
-            def _dump_data_to_file():
-                with open(dump_path, "w", encoding="utf-8") as f:
-                    json.dump(raw_data_to_save, f, indent=4, default=str)
 
-            await self.hass.async_add_executor_job(_dump_data_to_file)
-            # -----------------------------------------------------
+            # DEBUG: dump raw data to file — remove when done testing
+            dump_path = os.path.join(self.hass.config.config_dir, "bmw_ce04_raw_debug.json")
+
+            def _dump():
+                with open(dump_path, "w", encoding="utf-8") as f:
+                    json.dump(
+                        [dataclasses.asdict(bike) for bike in bikes],
+                        f,
+                        indent=4,
+                        default=str,
+                    )
+
+            await self.hass.async_add_executor_job(_dump)
+            # END DEBUG
 
         except CE04AuthError as err:
             self.entry.async_start_reauth(self.hass)
             raise UpdateFailed(f"Authentication failed: {err}") from err
         except CE04ApiError as err:
             raise UpdateFailed(str(err)) from err
-            
+
         return {bike.bike_id: bike for bike in bikes}
