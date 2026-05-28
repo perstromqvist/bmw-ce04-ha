@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_CLIENT_ID
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -11,6 +10,7 @@ from .api import CE04ApiClient, TokenData
 from .const import (
     CONF_API_HOST,
     CONF_AUTH_HOST,
+    CONF_CLIENT_ID,
     CONF_COUNTRY,
     CONF_VERIFY_SSL,
     DOMAIN,
@@ -18,13 +18,14 @@ from .const import (
 )
 from .coordinator import CE04Coordinator
 
+
 @dataclass(slots=True)
 class RuntimeData:
     client: CE04ApiClient
     coordinator: CE04Coordinator
 
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up BMW CE 04 from a config entry."""
     session = async_get_clientsession(hass)
     client = CE04ApiClient(
         session,
@@ -42,11 +43,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_config_entry_first_refresh()
 
     entry.runtime_data = RuntimeData(client=client, coordinator=coordinator)
-    
-    # Här ser Home Assistant till att både 'sensor' och 'image' laddas
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
+
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
