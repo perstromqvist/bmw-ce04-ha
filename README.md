@@ -54,7 +54,7 @@ Pulls data from the BMW Motorrad cloud and creates Home Assistant entities:
 
 - Home Assistant
 - HACS
-- A BMW CarData Client ID from the BMW CarData portal (This is the most critical part; if you don't already have a CarData Client ID, follow those instructions on [https://bmw-cardata.bmwgroup.com/customer/public/api-documentation/Id-Technical-registration_Step-1] first and proceed with this integration afterwards).
+- A BMW CarData Client ID from the BMW CarData portal (This is the most critical part; if you don't already have a CarData Client ID, follow the instructions on https://bmw-cardata.bmwgroup.com/customer/public/api-documentation/Id-Technical-registration_Step-1 first and proceed with this integration afterwards).
 - A BMW Motorrad account with ConnectedRide / cloud sync enabled in the app
 
 ## Installation via HACS
