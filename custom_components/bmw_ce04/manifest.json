@@ -1,7 +1,7 @@
 {
   "domain": "bmw_ce04",
   "name": "BMW Motorrad CE 04",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "config_flow": true,
   "documentation": "https://github.com/perstromqvist/bmw-ce04-ha",
   "issue_tracker": "https://github.com/perstromqvist/bmw-ce04-ha/issues",
