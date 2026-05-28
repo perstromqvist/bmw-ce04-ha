@@ -60,6 +60,21 @@ class CE04Data:
     # Keep the raw payload for debugging / future sensors
     raw: dict[str, Any]
 
+    @property
+    def entity_picture(self) -> str:
+        """Return the entity picture URL based on the bike color."""
+        color_images = {
+            "P0NB5": "bmw-ce-04-white.jpg",     # Light White
+            "P0A89": "bmw-ce-04-blue.jpg",      # Imperial Blue Metallic
+            "A89": "bmw-ce-04-blue.jpg",
+            "WM4S": "bmw-ce-04-silver.jpg",    # Magellan Grey Metallic (mappas till silver)
+            "M4S": "bmw-ce-04-silver.jpg",
+            "M4E": "bmw-ce-04-silver.jpg",     # Space Silver Metallic
+        }
+        # Fallback till vit bild om färgkoden inte känns igen eller saknas
+        image_file = color_images.get(self.color, "bmw-ce-04-white.jpg")
+        return f"/local/community/bmw_ce04/{image_file}"
+
     @classmethod
     def from_api(cls, data: dict[str, Any]) -> "CE04Data":
         bike_id = str(
