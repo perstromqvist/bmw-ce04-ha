@@ -1,0 +1,29 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "BMW CE 04 — Connect",
+        "description": "Enter your BMW CarData client ID and region settings.",
+        "data": {
+          "client_id": "BMW CarData Client ID",
+          "country": "Country code (e.g. sv-SE)",
+          "api_host": "Motorrad API host",
+          "auth_host": "BMW CarData auth host",
+          "poll_interval": "Poll interval (seconds)",
+          "verify_ssl": "Verify SSL"
+        }
+      },
+      "authorize": {
+        "title": "BMW CE 04 — Authorize",
+        "description": "Open this URL in your browser and enter the code shown:\n\n**{verification_uri}**\n\nCode: `{user_code}`\n\nOr use the direct link: {verification_uri_complete}\n\nAfter approving, click Submit."
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to reach BMW CarData. Check your client ID and network.",
+      "authorize_failed": "Authorization failed. Make sure you approved the device in the BMW portal."
+    },
+    "abort": {
+      "already_configured": "BMW CE 04 is already configured."
+    }
+  }
+}
