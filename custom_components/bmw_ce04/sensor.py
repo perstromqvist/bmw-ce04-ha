@@ -31,7 +31,6 @@ class CE04SensorDescription(SensorEntityDescription):
 
 SENSORS: tuple[CE04SensorDescription, ...] = (
     # ---- EV battery --------------------------------------------------
-    # Bildsensor som ändras baserat på färgkod
     CE04SensorDescription(
         key="bike_image",
         name="Bike image",
@@ -108,7 +107,21 @@ SENSORS: tuple[CE04SensorDescription, ...] = (
         suggested_display_precision=1,
         value_fn=lambda bike: bike.tire_pressure_rear_bar,
     ),
-    # ---- Service (diagnostic) ----------------------------------------
+    # ---- Service & Diagnostics ----------------------------------------
+    CE04SensorDescription(
+        key="vin",
+        name="VIN",
+        icon="mdi:barcode",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda bike: bike.vin,
+    ),
+    CE04SensorDescription(
+        key="sw_version",
+        name="Software version",
+        icon="mdi:chip",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda bike: str(bike.raw.get("_version")) if bike.raw.get("_version") is not None else None,
+    ),
     CE04SensorDescription(
         key="next_service_due_date",
         name="Next service due date",
@@ -190,20 +203,15 @@ class CE04Sensor(CE04Entity, SensorEntity):
     def entity_picture(self) -> str | None:
         """Return the custom bike image if this is the bike image sensor."""
         if self.entity_description.key == "bike_image":
-            # Hämta råvärdet från API:et (t.ex. "P0NB5")
             raw_color = str(self.bike.color).upper() if self.bike.color else ""
 
-            # Mappa BMW:s färgkoder till dina bildnamn i www-mappen
             color_map = {
-                "P0N3H": "white",   # Light white (Standard)
-                "P0NB5": "blu",     # Imperial blue metallic (Avantgarde) -> matchar ditt filnamn 'blu'
-                "P0N2M": "silver",  # Magellan grey metallic / Silver
+                "P0N3H": "white",
+                "P0NB5": "blu",
+                "P0N2M": "silver",
             }
 
-            # Slå upp bilden, hittar vi ingen kör vi "white" som säker fallback
             image_name = color_map.get(raw_color, "white")
-            
-            # Eftersom bilderna ligger direkt i www returnerar vi /local/bildnamn.png
             return f"/local/{image_name}.png"
             
         return super().entity_picture
