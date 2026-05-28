@@ -121,6 +121,36 @@ SENSORS: tuple[CE04SensorDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda bike: bike.last_activated_time,
     ),
+    CE04SensorDescription(
+        key="charging_time_estimation",
+        name="Charging time estimation",
+        icon="mdi:battery-clock",
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.MINUTES, # Se till att UnitOfTime är importerad från homeassistant.const
+        entity_category=EntityCategory.DIAGNOSTIC,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        value_fn=lambda bike: bike.charging_time_estimation_electric,
+    ),
+    CE04SensorDescription(
+        key="battery_soh",
+        name="Battery maximum capacity",
+        icon="mdi:battery-heart-variant",
+        native_unit_of_measurement=PERCENTAGE,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda bike: bike.soc_max_electric,
+    ),
+    CE04SensorDescription(
+        key="trip2",
+        name="Trip 2",
+        icon="mdi:road-variant",
+        device_class=SensorDeviceClass.DISTANCE,
+        native_unit_of_measurement=UnitOfLength.KILOMETERS,
+        state_class=SensorStateClass.TOTAL,
+        suggested_display_precision=0,
+        value_fn=lambda bike: bike.trip2_km,
+    ),
 )
 
 
