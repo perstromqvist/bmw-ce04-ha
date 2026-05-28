@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 DOMAIN = "bmw_ce04"
-PLATFORMS = ["sensor", "binary_sensor", "device_tracker"]
+PLATFORMS = ["sensor", "binary_sensor", "device_tracker", "image"]
 
 CONF_CLIENT_ID = "client_id"
 CONF_COUNTRY = "country"
