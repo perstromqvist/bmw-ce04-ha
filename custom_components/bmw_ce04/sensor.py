@@ -142,41 +142,4 @@ SENSORS: tuple[CE04SensorDescription, ...] = (
         name="Last activated time",
         icon="mdi:clock-start",
         device_class=SensorDeviceClass.TIMESTAMP,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda bike: bike.last_activated_time,
-    ),
-    CE04SensorDescription(
-        key="charging_time_estimation",
-        name="Charging time estimation",
-        icon="mdi:battery-clock",
-        device_class=SensorDeviceClass.DURATION,
-        native_unit_of_measurement=UnitOfTime.MINUTES,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=0,
-        value_fn=lambda bike: bike.charging_time_estimation_electric,
-    ),
-    CE04SensorDescription(
-        key="battery_soh",
-        name="Battery maximum capacity",
-        icon="mdi:battery-heart-variant",
-        native_unit_of_measurement=PERCENTAGE,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda bike: bike.soc_max_electric,
-    ),
-)
-
-
-class CE04Sensor(CE04Entity, SensorEntity):
-    entity_description: CE04SensorDescription
-
-    def __init__(
-        self,
-        coordinator,
-        bike_id: str,
-        description: CE04SensorDescription,
-    ) -> None:
-        super().__init__(coordinator, bike_id)
-        self.entity_description = description
-        self._attr_unique_id = f"v1_{self
+        entity_category=EntityCategory.DIAGNOSTIC
