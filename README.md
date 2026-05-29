@@ -18,49 +18,103 @@
   </a>
 </p>
 
-***
+---
 
-Custom Home Assistant integration for the BMW Motorrad CE 04 electric scooter, using the BMW ConnectedRide / CarData cloud API.
+A custom Home Assistant integration for the **BMW Motorrad CE 04** electric scooter, using the official **BMW ConnectedRide / CarData cloud API**.
 
-## What it does
+This integration is **read‑only** and does **not** send any remote commands to the scooter.
 
-Pulls data from the BMW Motorrad cloud and creates Home Assistant entities:
+---
 
-- **EV Battery & Charging:**
-  - Battery level (%)
-  - Remaining electric range (km)
-  - Charging time estimation (minutes remaining when charging)
-  - Battery maximum capacity / State of Health (%)
-- **Odometer & Trip:**
-  - Total mileage (km)
-  - Trip 1 (km)
-  - Trip 2 (km)
-- **Tyre Pressures:**
-  - Tyre pressure front and rear (bar)
-- **Service & Diagnostics:**
-  - Next service due date
-  - Next service remaining distance (km)
-  - Last connected and last activated timestamps
-- **Location:**
-  - Last known GPS location (device tracker)
-- **Binary Sensors:**
-  - Low battery, low tyre pressure (front/rear), service due soon
-- **Dynamic Presentation:**
-  - Dynamic vehicle image sensor (`sensor.bmw_ce04_bike_image`) that automatically renders the correct official scooter visual matching your vehicle's specific color code (`Light White`, `Imperial Blue`, or `Magellan Grey / Space Silver`).
+## 🚀 Features
 
-*Read-only — no remote commands are sent to the scooter.*
+This integration pulls live data from the BMW Motorrad cloud and exposes it as Home Assistant entities.
 
-## Requirements
+### 🔋 EV Battery & Charging
+- Battery level (%)
+- Remaining electric range (km)
+- Charging time estimation (minutes)
+- Battery maximum capacity / State of Health (%)
+- Charging status (binary sensor)
 
-- Home Assistant
-- HACS
-- A BMW CarData Client ID from the BMW CarData portal (This is the most critical part; if you don't already have a CarData Client ID, follow the instructions on https://bmw-cardata.bmwgroup.com/customer/public/api-documentation/Id-Technical-registration_Step-1 first and proceed with this integration afterwards).
-- A BMW Motorrad account with ConnectedRide / cloud sync enabled in the app
+### 🛣️ Odometer & Trips
+- Total mileage (km)
+- Trip 1 (km)
+- Trip 2 (km)
 
-## Installation via HACS
+### 🛞 Tyre Pressures
+- Front tyre pressure (bar)
+- Rear tyre pressure (bar)
+- Low‑pressure alerts (binary sensors)
 
-1. Go to **HACS** → **Integrations**
-2. Click the three dots in the top right corner and choose **Custom repositories**
-3. Paste the URL to this repository, select **Integration** as the category, and click **Add**
-4. Click on the **BMW Motorrad CE 04** card, select **Download**
-5. **Restart Home Assistant**
+### 🛠️ Service & Diagnostics
+- Next service due date
+- Remaining distance until service
+- Service due soon / overdue (binary sensors)
+- Last connected timestamp
+- Last activated timestamp
+- Battery degradation indicator
+
+### 📍 Location Tracking
+- Last known GPS location (device tracker)
+
+### 🎨 Dynamic Vehicle Image
+A dedicated sensor automatically displays the correct CE 04 image based on your scooter’s color code:
+
+- Light White  
+- Imperial Blue  
+- Magellan Grey / Space Silver  
+
+Images are served from `/local/`.
+
+### 🧩 Home Assistant Native Features
+- Full **Config Flow** setup (no YAML)
+- **Reauthentication** when token expires
+- **Diagnostics** support (export anonymized data)
+- **Device registry** integration
+- **Entity categories** for clean UI grouping
+
+---
+
+## 📦 Requirements
+
+- Home Assistant (latest recommended)
+- HACS installed
+- A **BMW CarData Client ID**  
+  → Register at: https://bmw-cardata.bmwgroup.com/customer/public/api-documentation/Id-Technical-registration_Step-1  
+- A BMW Motorrad account with **ConnectedRide** enabled in the app
+
+---
+
+## 🛠️ Installation via HACS
+
+1. Go to **HACS → Integrations**
+2. Click the three dots → **Custom repositories**
+3. Add this repository URL  
+4. Choose **Integration**
+5. Open **BMW Motorrad CE 04** in HACS and click **Download**
+6. **Restart Home Assistant**
+7. Go to **Settings → Devices & Services → Add Integration**
+8. Search for **BMW CE 04**
+
+---
+
+## 🔐 Authentication
+
+This integration uses the official **BMW CarData OAuth Device Code Flow**.
+
+During setup you will:
+
+1. Enter your CarData Client ID
+2. Receive a verification URL and user code
+3. Approve the device in the BMW portal
+4. Return to Home Assistant and click **Submit**
+
+If your token expires, Home Assistant will automatically trigger **Reauthentication**.
+
+---
+
+## 🧪 Debugging (optional)
+
+If you create a file named:
+
