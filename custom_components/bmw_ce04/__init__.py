@@ -18,6 +18,7 @@ from .const import (
     CONF_VERIFY_SSL,
     DEFAULT_POLL_INTERVAL,
     DOMAIN,
+    DEFAULT_COUNTRY,
     PLATFORMS,
 )
 from .coordinator import CE04Coordinator
@@ -43,7 +44,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         client_id=entry.data[CONF_CLIENT_ID],
         api_host=entry.data[CONF_API_HOST],
         auth_host=entry.data[CONF_AUTH_HOST],
-        country=entry.data[CONF_COUNTRY],
+        country=entry.data.get(CONF_COUNTRY, DEFAULT_COUNTRY),
         verify_ssl=entry.data.get(CONF_VERIFY_SSL, True),
     )
 
