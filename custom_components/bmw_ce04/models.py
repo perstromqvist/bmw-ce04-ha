@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from .helpers import (
     parse_timestamp,
@@ -46,48 +46,52 @@ class CE04Data:
     raw: dict[str, Any]
 
     @classmethod
-    def from_api(cls, api_obj: Any) -> "CE04Data":
-        """Create CE04Data from API dataclass."""
+    def from_api(cls, data: dict[str, Any]) -> "CE04Data":
+        """Create CE04Data from a raw BMW API dict."""
 
-        # BMW sometimes sends remainingRangeElectric=None but remainingRange=118000
+        # remainingRangeElectric is null in the API, fallback to remainingRange
         remaining_range_raw = (
-            api_obj.remaining_range_electric_km
-            if api_obj.remaining_range_electric_km is not None
-            else api_obj.raw.get("remainingRange")
+            data.get("remainingRangeElectric")
+            if data.get("remainingRangeElectric") is not None
+            else data.get("remainingRange")
         )
 
-        return cls(
-            bike_id=api_obj.bike_id,
-            name=api_obj.name,
-            vin=api_obj.vin,
-            type_key=api_obj.type_key,
-            color=map_color(api_obj.color),
+        # lastActivatedTime = 0 means never activated
+        last_activated_raw = data.get("lastActivatedTime")
+        if last_activated_raw == 0:
+            last_activated_raw = None
 
-            battery_level=api_obj.battery_level,
+        return cls(
+            bike_id=data.get("itemId") or data.get("vehicleId") or "",
+            name=data.get("name"),
+            vin=data.get("vin"),
+            type_key=data.get("typeKey"),
+            color=map_color(data.get("color")),
+
+            battery_level=data.get("energyLevel"),
             remaining_range_electric_km=km_from_meters(remaining_range_raw),
 
-            charging_time_estimation_electric=api_obj.charging_time_estimation_electric,
-            soc_max_electric=api_obj.soc_max_electric,
+            charging_time_estimation_electric=data.get("chargingTimeEstimationElectric"),
+            soc_max_electric=data.get("socMax"),
 
-            total_mileage_km=km_from_meters(api_obj.total_mileage_km),
-            trip1_km=km_from_meters(api_obj.trip1_km),
-            trip2_km=km_from_meters(api_obj.trip2_km),
-
-            total_connected_distance_km=km_from_meters(api_obj.total_connected_distance_km),
+            total_mileage_km=km_from_meters(data.get("totalMileage")),
+            trip1_km=km_from_meters(data.get("trip1")),
+            trip2_km=km_from_meters(data.get("trip2")),
+            total_connected_distance_km=km_from_meters(data.get("totalConnectedDistance")),
 
             next_service_remaining_distance_km=km_from_meters(
-                api_obj.next_service_remaining_distance_km
+                data.get("nextServiceRemainingDistance")
             ),
-            next_service_due_date=parse_timestamp(api_obj.next_service_due_date),
+            next_service_due_date=parse_timestamp(data.get("nextServiceDueDate")),
 
-            tire_pressure_front_bar=api_obj.tire_pressure_front_bar,
-            tire_pressure_rear_bar=api_obj.tire_pressure_rear_bar,
+            tire_pressure_front_bar=data.get("tirePressureFront"),
+            tire_pressure_rear_bar=data.get("tirePressureRear"),
 
-            last_connected_time=parse_timestamp(api_obj.last_connected_time),
-            last_activated_time=parse_timestamp(api_obj.last_activated_time),
+            last_connected_time=parse_timestamp(data.get("lastConnectedTime")),
+            last_activated_time=parse_timestamp(last_activated_raw),
 
-            latitude=api_obj.latitude,
-            longitude=api_obj.longitude,
+            latitude=data.get("lastConnectedLat"),
+            longitude=data.get("lastConnectedLon"),
 
-            raw=api_obj.raw,
+            raw=data,
         )
