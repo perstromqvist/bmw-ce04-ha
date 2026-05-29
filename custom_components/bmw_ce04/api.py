@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import base64
 import hashlib
 import logging
@@ -9,12 +10,13 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import aiohttp
-import asyncio
 
 from .const import BIKES_ENDPOINT_TMPL, DEVICE_CODE_ENDPOINT, TOKEN_ENDPOINT
 from .models import CE04Data
 
 _LOGGER = logging.getLogger(__name__)
+
+TOKEN_EXPIRY_MARGIN = timedelta(seconds=60)
 
 
 class CE04ApiError(Exception):
@@ -245,17 +247,27 @@ class CE04ApiClient:
             raise CE04AuthError(f"Token refresh error: {err}") from err
 
     # ------------------------------------------------------------------
+    # Token management
+    # ------------------------------------------------------------------
+
+    async def async_ensure_token(self) -> None:
+        """Ensure a valid token exists, refreshing proactively if near expiry.
+
+        Called by the coordinator before each poll so that token state is
+        always persisted back to config entry storage when it changes.
+        Also called internally by async_get_bikes before every request.
+        """
+        if not self._token:
+            raise CE04AuthError("Not authenticated")
+        if self._token.expires_at <= datetime.now(tz=UTC) + TOKEN_EXPIRY_MARGIN:
+            await self.async_refresh_token()
+
+    # ------------------------------------------------------------------
     # Data fetch
     # ------------------------------------------------------------------
 
-    async def _ensure_token(self) -> None:
-        if not self._token:
-            raise CE04AuthError("Not authenticated")
-        if self._token.expires_at <= datetime.now(tz=UTC):
-            await self.async_refresh_token()
-
     async def async_get_bikes(self) -> list[CE04Data]:
-        await self._ensure_token()
+        await self.async_ensure_token()
         url = f"{self._api_host}{BIKES_ENDPOINT_TMPL.format(country=self._country)}"
         headers = {
             "Authorization": f"Bearer {self._token.access_token}",
@@ -270,7 +282,7 @@ class CE04ApiClient:
                 _LOGGER.debug("CE04 bikes status=%s body=%s", resp.status, text)
 
                 if resp.status == 401:
-                    _LOGGER.debug("401 from bikes endpoint, trying token refresh")
+                    _LOGGER.debug("401 from bikes endpoint, forcing token refresh")
                     await self.async_refresh_token()
                     headers["Authorization"] = f"Bearer {self._token.access_token}"
 
@@ -296,13 +308,15 @@ class CE04ApiClient:
                 data = await resp.json(content_type=None)
                 return self._parse_bikes(data)
 
+        except (CE04ApiError, CE04AuthError):
+            raise
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
             raise CE04ApiError(f"Network error fetching bikes: {err}") from err
         except Exception as err:
             raise CE04ApiError(f"Unexpected error fetching bikes: {err}") from err
 
     def _parse_bikes(self, data: Any) -> list[CE04Data]:
-        """Parse the API response into a list of CE04Data objects."""
+        """Parse raw API response into CE04Data objects."""
         if isinstance(data, dict):
             if (
                 "bmcUserBikes" in data
