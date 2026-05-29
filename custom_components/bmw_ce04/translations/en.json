@@ -27,26 +27,27 @@
   },
   "entity": {
     "sensor": {
-      "battery_level": { "name": "Battery level" },
-      "remaining_range": { "name": "Remaining range" },
-      "total_mileage": { "name": "Total mileage" },
+      "battery_level": { "name": "Battery Level" },
+      "remaining_range": { "name": "Remaining Range" },
+      "total_mileage": { "name": "Total Mileage" },
       "trip1": { "name": "Trip 1" },
       "trip2": { "name": "Trip 2" },
-      "tire_pressure_front": { "name": "Tire pressure front" },
-      "tire_pressure_rear": { "name": "Tire pressure rear" },
+      "tire_pressure_front": { "name": "Front Tire Pressure" },
+      "tire_pressure_rear": { "name": "Rear Tire Pressure" },
       "vin": { "name": "VIN" },
-      "next_service_due_date": { "name": "Next service due date" },
-      "next_service_remaining_distance": { "name": "Next service remaining distance" },
-      "last_connected_time": { "name": "Last connected time" },
-      "last_activated_time": { "name": "Last activated time" },
-      "charging_time_estimation": { "name": "Charging time estimation" },
-      "battery_soh": { "name": "Battery maximum capacity" }
+      "next_service_due_date": { "name": "Next Service Due Date" },
+      "next_service_remaining_distance": { "name": "Next Service Remaining Distance" },
+      "last_connected_time": { "name": "Last Connected" },
+      "last_activated_time": { "name": "Last Activated" },
+      "charging_time_estimation": { "name": "Charging Time Estimation" },
+      "battery_soh": { "name": "Battery Maximum Capacity" },
+      "sw_version": { "name": "Software Version" }
     },
     "binary_sensor": {
-      "low_battery": { "name": "Low battery" },
-      "front_tire_pressure_low": { "name": "Front tire pressure low" },
-      "rear_tire_pressure_low": { "name": "Rear tire pressure low" },
-      "service_due_soon": { "name": "Service due soon" }
+      "low_battery": { "name": "Low Battery" },
+      "front_tire_pressure_low": { "name": "Front Tire Pressure Low" },
+      "rear_tire_pressure_low": { "name": "Rear Tire Pressure Low" },
+      "service_due_soon": { "name": "Service Due Soon" }
     },
     "device_tracker": {
       "location": { "name": "Location" }
