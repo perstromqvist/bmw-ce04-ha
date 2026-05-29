@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import logging
+import os
+import json
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import CE04ApiClient, TokenData
@@ -55,6 +57,49 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Save runtime objects
     entry.runtime_data = RuntimeData(client=client, coordinator=coordinator)
+
+    # Register services (per entry)
+    async def handle_force_update(call: ServiceCall):
+        """Force an immediate update."""
+        bike_id = call.data.get("bike_id")
+        _LOGGER.debug("Service force_update called (bike_id=%s)", bike_id)
+
+        await coordinator.async_request_refresh()
+
+        if bike_id:
+            return coordinator.data.get(bike_id)
+        return coordinator.data
+
+    async def handle_export_raw(call: ServiceCall):
+        """Return raw API data from coordinator."""
+        bike_id = call.data.get("bike_id")
+        _LOGGER.debug("Service export_raw_data called (bike_id=%s)", bike_id)
+
+        if bike_id:
+            bike = coordinator.data.get(bike_id)
+            return bike.raw if bike else None
+
+        return {bid: b.raw for bid, b in coordinator.data.items()}
+
+    async def handle_clear_debug(call: ServiceCall):
+        """Delete the debug dump file if it exists."""
+        dump_path = os.path.join(hass.config.config_dir, "bmw_ce04_raw_debug.json")
+        _LOGGER.debug("Service clear_debug_dump called")
+
+        if os.path.exists(dump_path):
+            try:
+                os.remove(dump_path)
+                _LOGGER.info("Deleted debug dump file: %s", dump_path)
+                return True
+            except Exception as err:
+                _LOGGER.error("Failed to delete debug dump: %s", err)
+                return False
+
+        return True  # Nothing to delete
+
+    hass.services.async_register(DOMAIN, "force_update", handle_force_update)
+    hass.services.async_register(DOMAIN, "export_raw_data", handle_export_raw)
+    hass.services.async_register(DOMAIN, "clear_debug_dump", handle_clear_debug)
 
     # Forward platforms
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
