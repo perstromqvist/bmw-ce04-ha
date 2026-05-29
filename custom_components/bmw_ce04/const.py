@@ -7,7 +7,7 @@ from __future__ import annotations
 DOMAIN = "bmw_ce04"
 LOGGER_NAME = DOMAIN
 
-PLATFORMS = ["sensor", "binary_sensor", "device_tracker"]
+PLATFORMS = ["sensor", "binary_sensor", "device_tracker", "image"]
 
 # ---------------------------------------------------------------------------
 # Configuration keys
@@ -30,7 +30,6 @@ DEFAULT_COUNTRY = "en-EN"
 DEFAULT_POLL_INTERVAL = 300
 DEFAULT_VERIFY_SSL = True
 
-# Recommended HA-style bounds
 MIN_POLL_INTERVAL = 60
 MAX_POLL_INTERVAL = 3600
 
@@ -57,15 +56,3 @@ MODEL = "CE 04"
 DEVICE_CODE_ENDPOINT = "/gcdm/oauth/device/code"
 TOKEN_ENDPOINT = "/gcdm/oauth/token"
 BIKES_ENDPOINT_TMPL = "/v2/service/{country}/bmc-user-bikes"
-
-# ---------------------------------------------------------------------------
-# Color mapping (centralized)
-# ---------------------------------------------------------------------------
-
-COLOR_MAP = {
-    "P0N3H": "white",
-    "P0NB5": "blue",
-    "P0N2M": "silver",
-}
-
-DEFAULT_COLOR = "white"
