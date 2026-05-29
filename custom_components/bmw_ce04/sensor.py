@@ -20,8 +20,11 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .__init__ import STATIC_PATH
 from .entity import CE04Entity
 from .models import CE04Data
+
+DEFAULT_IMAGE = "p0n3h"  # Light White fallback
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -138,7 +141,7 @@ SENSORS: tuple[CE04SensorDescription, ...] = (
         suggested_display_precision=0,
         value_fn=lambda bike: bike.next_service_remaining_distance_km,
     ),
-    # ---- Connectivity (diagnostic) -----------------------------------
+    # ---- Connectivity ------------------------------------------------
     CE04SensorDescription(
         key="last_connected_time",
         translation_key="last_connected_time",
@@ -200,10 +203,34 @@ class CE04Sensor(CE04Entity, SensorEntity):
 
     @property
     def native_value(self):
-        """Return the state of the sensor."""
         if not self.bike:
             return None
         return self.entity_description.value_fn(self.bike)
+
+
+class CE04VehicleImageSensor(CE04Entity, SensorEntity):
+    """Sensor that exposes the CE 04 vehicle image via entity_picture."""
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "vehicle_image"
+    _attr_icon = "mdi:motorbike"
+
+    def __init__(self, coordinator, bike_id: str) -> None:
+        super().__init__(coordinator, bike_id)
+        self._attr_unique_id = f"{self.bike_slug}_vehicle_image"
+        self._attr_suggested_object_id = "vehicle_image"
+
+    @property
+    def native_value(self) -> str:
+        """Return color code as state."""
+        return (self.bike.color if self.bike else None) or DEFAULT_IMAGE
+
+    @property
+    def entity_picture(self) -> str:
+        """Return URL to vehicle image based on color code."""
+        color = (self.bike.color if self.bike else None) or ""
+        filename = color.lower() if color else DEFAULT_IMAGE
+        return f"{STATIC_PATH}/{filename}.jpg"
 
 
 async def async_setup_entry(
@@ -214,10 +241,10 @@ async def async_setup_entry(
     """Set up BMW CE 04 sensor entities."""
     coordinator = entry.runtime_data.coordinator
 
-    entities: list[SensorEntity] = [
-        CE04Sensor(coordinator, bike_id, description)
-        for bike_id in coordinator.data
-        for description in SENSORS
-    ]
+    entities: list[SensorEntity] = []
+    for bike_id in coordinator.data:
+        entities.append(CE04VehicleImageSensor(coordinator, bike_id))
+        for description in SENSORS:
+            entities.append(CE04Sensor(coordinator, bike_id, description))
 
     async_add_entities(entities)
