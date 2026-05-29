@@ -90,8 +90,8 @@ class CE04Coordinator(DataUpdateCoordinator[dict[str, CE04Data]]):
 
         for bike in bikes:
             try:
-                result[bike.bike_id] = CE04Data.from_api(bike)
+                result[bike.bike_id] = bike   # inte CE04Data.from_api(bike)
             except Exception as err:
-                _LOGGER.warning("Failed to parse CE04 bike data: %s", err)
-
+                _LOGGER.warning("Failed to store CE04 bike data: %s", err)
+        
         return result
