@@ -7,6 +7,8 @@
   "issue_tracker": "https://github.com/perstromqvist/bmw-ce04-ha/issues",
   "codeowners": ["@perstromqvist"],
   "iot_class": "cloud_polling",
+  "integration_type": "hub",
+  "diagnostics": true,
   "requirements": [],
   "dependencies": []
 }
