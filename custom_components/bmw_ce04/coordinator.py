@@ -43,7 +43,7 @@ class CE04Coordinator(DataUpdateCoordinator[dict[str, CE04Data]]):
         try:
             # Refresh token if needed
             old_token = self.client.token
-            await self.client.async_refresh_token_if_needed()
+            await self.client.async_ensure_token()
 
             # Persist token if changed
             if self.client.token != old_token:
