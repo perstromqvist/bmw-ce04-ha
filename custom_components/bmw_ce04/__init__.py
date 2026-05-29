@@ -20,12 +20,11 @@ from .const import (
     DEFAULT_COUNTRY,
     DOMAIN,
     PLATFORMS,
+    STATIC_PATH,
 )
 from .coordinator import CE04Coordinator
 
 _LOGGER = logging.getLogger(__name__)
-
-STATIC_PATH = f"/api/{DOMAIN}/static"
 
 
 @dataclass(slots=True)
@@ -39,7 +38,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up BMW CE 04 integration."""
     _LOGGER.debug("Setting up BMW CE 04 entry %s", entry.entry_id)
 
-    # Register static files (www/ folder) once
     await _async_register_static_path(hass)
 
     session = async_get_clientsession(hass)
@@ -68,8 +66,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def _async_register_static_path(hass: HomeAssistant) -> None:
-    """Register the www/ folder as a static path served under /api/bmw_ce04/static/."""
-    if getattr(hass.data, f"_{DOMAIN}_static_registered", False):
+    """Register www/ folder as static path — once per HA session."""
+    if hass.data.get(f"_{DOMAIN}_static_registered"):
         return
 
     www_path = Path(__file__).parent / "www"
@@ -88,15 +86,11 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         return
 
     async def handle_force_update(call: ServiceCall):
-        """Force an immediate update."""
-        bike_id = call.data.get("bike_id")
-        _LOGGER.info("Service force_update called (bike_id=%s)", bike_id)
         coordinator = _get_coordinator_from_call(hass, call)
         if coordinator:
             await coordinator.async_request_refresh()
 
     async def handle_export_raw(call: ServiceCall):
-        """Export raw API data for debugging."""
         bike_id = call.data.get("bike_id")
         coordinator = _get_coordinator_from_call(hass, call)
         if not coordinator:
@@ -107,12 +101,10 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         return {bid: b.raw for bid, b in coordinator.data.items()}
 
     async def handle_clear_debug(call: ServiceCall):
-        """Delete the debug dump file if it exists."""
         dump_path = os.path.join(hass.config.config_dir, "bmw_ce04_raw_debug.json")
         if os.path.exists(dump_path):
             try:
                 os.remove(dump_path)
-                _LOGGER.info("Deleted debug dump file: %s", dump_path)
                 return True
             except Exception as err:
                 _LOGGER.error("Failed to delete debug dump: %s", err)
@@ -125,7 +117,6 @@ async def _async_register_services(hass: HomeAssistant) -> None:
 
 
 def _get_coordinator_from_call(hass: HomeAssistant, call: ServiceCall):
-    """Get coordinator from any loaded entry."""
     for entry in hass.config_entries.async_entries(DOMAIN):
         if entry.runtime_data and hasattr(entry.runtime_data, "coordinator"):
             return entry.runtime_data.coordinator
@@ -134,8 +125,6 @@ def _get_coordinator_from_call(hass: HomeAssistant, call: ServiceCall):
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload BMW CE 04 integration."""
-    _LOGGER.debug("Unloading BMW CE 04 entry %s", entry.entry_id)
-
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
     if unload_ok:
