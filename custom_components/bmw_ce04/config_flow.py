@@ -6,13 +6,25 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.helpers import aiohttp_client
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import homeassistant.helpers.config_validation as cv
 
-from .api import CE04Client, CE04AuthError
-from .const import DOMAIN
+from .api import CE04ApiClient, CE04AuthError
+from .const import (
+    CONF_API_HOST,
+    CONF_AUTH_HOST,
+    CONF_CLIENT_ID,
+    CONF_POLL_INTERVAL,
+    CONF_VERIFY_SSL,
+    DEFAULT_API_HOST,
+    DEFAULT_AUTH_HOST,
+    DEFAULT_POLL_INTERVAL,
+    DEFAULT_VERIFY_SSL,
+    DOMAIN,
+    MIN_POLL_INTERVAL,
+    MAX_POLL_INTERVAL,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -23,7 +35,35 @@ class CE04ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     MINOR_VERSION = 1
 
-    _reauth_entry: config_entries.ConfigEntry | None = None
+    def __init__(self) -> None:
+        self._user_input: dict[str, Any] | None = None
+        self._device_code: str | None = None
+        self._code_verifier: str | None = None
+        self._verification_uri: str | None = None
+        self._verification_uri_complete: str | None = None
+        self._user_code: str | None = None
+        self._reauth_entry: config_entries.ConfigEntry | None = None
+
+    @staticmethod
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> CE04OptionsFlow:
+        """Return options flow."""
+        return CE04OptionsFlow(config_entry)
+
+    def _build_client(self, data: dict[str, Any]) -> CE04ApiClient:
+        return CE04ApiClient(
+            async_get_clientsession(self.hass),
+            client_id=data[CONF_CLIENT_ID],
+            api_host=data[CONF_API_HOST],
+            auth_host=data[CONF_AUTH_HOST],
+            country="en-EN",
+            verify_ssl=data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
+        )
+
+    # ------------------------------------------------------------------
+    # Step 1: user
+    # ------------------------------------------------------------------
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -32,110 +72,126 @@ class CE04ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            try:
-                client = CE04Client(
-                    hass=self.hass,
-                    client_id=user_input["client_id"],
-                    api_host=user_input["api_host"],
-                    auth_host=user_input["auth_host"],
-                    poll_interval=user_input.get("poll_interval", 60),
-                    verify_ssl=user_input.get("verify_ssl", True),
-                )
+            user_input = dict(user_input)
+            user_input[CONF_CLIENT_ID] = user_input[CONF_CLIENT_ID].strip().lower()
 
-                # Testa anslutningen och starta device code flow
-                verification = await client.async_start_device_flow()
+            poll = user_input.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL)
+            if not (MIN_POLL_INTERVAL <= poll <= MAX_POLL_INTERVAL):
+                errors[CONF_POLL_INTERVAL] = "invalid_poll_interval"
+            else:
+                client = self._build_client(user_input)
+                try:
+                    code = await client.async_request_device_code()
+                except CE04AuthError:
+                    errors["base"] = "cannot_connect"
+                except Exception:
+                    _LOGGER.exception("Unexpected error requesting device code")
+                    errors["base"] = "cannot_connect"
+                else:
+                    self._user_input = user_input
+                    self._device_code = code.device_code
+                    self._code_verifier = code.code_verifier
+                    self._verification_uri = code.verification_uri
+                    self._verification_uri_complete = code.verification_uri_complete or ""
+                    self._user_code = code.user_code
+                    return await self.async_step_authorize()
 
-                self.context["client"] = client
-                self.context["user_input"] = user_input
-
-                return self.async_show_form(
-                    step_id="authorize",
-                    description_placeholders={
-                        "verification_uri": verification["verification_uri"],
-                        "user_code": verification["user_code"],
-                        "verification_uri_complete": verification.get(
-                            "verification_uri_complete", ""
-                        ),
-                    },
-                )
-
-            except CE04AuthError as err:
-                _LOGGER.error("Auth error: %s", err)
-                errors["base"] = "authorize_failed"
-            except Exception as err:  # pylint: disable=broad-except
-                _LOGGER.exception("Unexpected error")
-                errors["base"] = "cannot_connect"
-
-        # Visa initialt formulär
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
-                    vol.Required("client_id"): cv.string,
-                    vol.Required("api_host", default="https://api.bmw-motorrad.com"): cv.string,
-                    vol.Required("auth_host", default="https://customer.bmw-motorrad.com"): cv.string,
-                    vol.Optional("poll_interval", default=60): cv.positive_int,
-                    vol.Optional("verify_ssl", default=True): cv.boolean,
+                    vol.Required(CONF_CLIENT_ID): cv.string,
+                    vol.Required(CONF_API_HOST, default=DEFAULT_API_HOST): cv.string,
+                    vol.Required(CONF_AUTH_HOST, default=DEFAULT_AUTH_HOST): cv.string,
+                    vol.Optional(CONF_POLL_INTERVAL, default=DEFAULT_POLL_INTERVAL): cv.positive_int,
+                    vol.Optional(CONF_VERIFY_SSL, default=DEFAULT_VERIFY_SSL): cv.boolean,
                 }
             ),
             errors=errors,
         )
 
+    # ------------------------------------------------------------------
+    # Step 2: authorize
+    # ------------------------------------------------------------------
+
     async def async_step_authorize(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle authorization step (after user approved in browser)."""
-        client: CE04Client = self.context["client"]
-        user_input_data: dict = self.context["user_input"]
+        """Handle authorization step — user has approved in browser."""
+        errors: dict[str, str] = {}
 
-        try:
-            token = await client.async_complete_device_flow()
+        if user_input is not None:
+            client = self._build_client(self._user_input)
+            try:
+                token = await client.async_exchange_device_code(
+                    self._device_code, self._code_verifier
+                )
+            except CE04AuthError:
+                errors["base"] = "authorize_failed"
+            except Exception:
+                _LOGGER.exception("Unexpected error exchanging device code")
+                errors["base"] = "authorize_failed"
+            else:
+                await self.async_set_unique_id(
+                    self._user_input[CONF_CLIENT_ID], raise_on_progress=False
+                )
+                self._abort_if_unique_id_configured()
 
-            await self.async_set_unique_id(client.get_unique_id())
-            self._abort_if_unique_id_configured()
+                data = dict(self._user_input)
+                data["token"] = token.as_storage_dict()
+                return self.async_create_entry(title="BMW CE 04", data=data)
 
-            return self.async_create_entry(
-                title="BMW CE 04",
-                data={
-                    **user_input_data,
-                    "token": token.to_dict(),
-                },
-            )
+        return self.async_show_form(
+            step_id="authorize",
+            data_schema=vol.Schema({}),
+            errors=errors,
+            description_placeholders={
+                "verification_uri": self._verification_uri or "",
+                "verification_uri_complete": self._verification_uri_complete or "",
+                "user_code": self._user_code or "",
+            },
+        )
 
-        except CE04AuthError as err:
-            _LOGGER.error("Authorization failed: %s", err)
-            return self.async_show_form(
-                step_id="authorize",
-                errors={"base": "authorize_failed"},
-                description_placeholders={
-                    "verification_uri": "...",
-                    "user_code": "...",
-                },
-            )
+    # ------------------------------------------------------------------
+    # Reauth
+    # ------------------------------------------------------------------
 
-    async def async_step_reauth(self, entry_data: dict[str, Any]) -> FlowResult:
+    async def async_step_reauth(
+        self, entry_data: dict[str, Any]
+    ) -> FlowResult:
         """Handle reauthentication."""
         self._reauth_entry = self.hass.config_entries.async_get_entry(
             self.context["entry_id"]
         )
+        self._user_input = dict(self._reauth_entry.data)
         return await self.async_step_reauth_confirm()
 
     async def async_step_reauth_confirm(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Show reauth confirmation and retry."""
+        """Show reauth confirmation, then kick off device code flow again."""
         errors: dict[str, str] = {}
 
-        if user_input is not None and self._reauth_entry:
-            # Försök ladda om med samma data
-            self.hass.config_entries.async_update_entry(
-                self._reauth_entry, data=self._reauth_entry.data
-            )
-            await self.hass.config_entries.async_reload(self._reauth_entry.entry_id)
-            return self.async_abort(reason="reauth_successful")
+        if user_input is not None:
+            client = self._build_client(self._user_input)
+            try:
+                code = await client.async_request_device_code()
+            except CE04AuthError:
+                errors["base"] = "cannot_connect"
+            except Exception:
+                _LOGGER.exception("Unexpected error during reauth device code request")
+                errors["base"] = "cannot_connect"
+            else:
+                self._device_code = code.device_code
+                self._code_verifier = code.code_verifier
+                self._verification_uri = code.verification_uri
+                self._verification_uri_complete = code.verification_uri_complete or ""
+                self._user_code = code.user_code
+                return await self.async_step_authorize()
 
         return self.async_show_form(
             step_id="reauth_confirm",
+            data_schema=vol.Schema({}),
             errors=errors,
             description_placeholders={"name": "BMW CE 04"},
         )
@@ -154,14 +210,16 @@ class CE04OptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
+        current = self.config_entry.options.get(
+            CONF_POLL_INTERVAL,
+            self.config_entry.data.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL),
+        )
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
                 {
-                    vol.Optional(
-                        "poll_interval",
-                        default=self.config_entry.options.get("poll_interval", 60),
-                    ): cv.positive_int,
+                    vol.Optional(CONF_POLL_INTERVAL, default=current): cv.positive_int,
                 }
             ),
         )
