@@ -1,79 +1,54 @@
 from __future__ import annotations
 
-from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.util import slugify
 
-from .const import ATTR_BIKE_ID, ATTR_RAW, DOMAIN
-
-_COLOR_IMAGE_MAP = {
-    "P0N3H": "white",
-    "P0NB5": "blue",
-    "P0N2M": "silver",
-}
+from .const import DOMAIN
 
 
 class CE04Entity(CoordinatorEntity):
-    """Base entity for BMW CE 04."""
-
-    _attr_has_entity_name = True
+    """Base class for all CE04 entities."""
 
     def __init__(self, coordinator, bike_id: str) -> None:
         super().__init__(coordinator)
         self._bike_id = bike_id
 
+    # ---------------------------------------------------------
+    # Access to the bike data
+    # ---------------------------------------------------------
     @property
     def bike(self):
-        return self.coordinator.data[self._bike_id]
-
-    @property
-    def bike_name(self) -> str:
-        return self.bike.name or "BMW CE 04"
+        """Return the CE04Data object for this bike."""
+        return self.coordinator.data.get(self._bike_id)
 
     @property
     def bike_slug(self) -> str:
-        return slugify(self.bike_name)
+        """Short slug used for unique IDs and object IDs."""
+        if not self.bike:
+            return "ce04"
+        # VIN is guaranteed to exist
+        return self.bike.vin.lower()
 
+    # ---------------------------------------------------------
+    # Device Info (shown in HA device registry)
+    # ---------------------------------------------------------
     @property
-    def entity_picture(self) -> str | None:
-        color = str(self.bike.color or "").upper()
-        image_name = _COLOR_IMAGE_MAP.get(color, "white")
-        return f"/local/{image_name}.png"
+    def device_info(self):
+        """Return device information for the CE04."""
+        if not self.bike:
+            return None
 
-    @property
-    def device_info(self) -> DeviceInfo:
-        bike = self.bike
-        model_parts: list[str] = ["CE 04"]
-        if bike.type_key:
-            model_parts.append(f"({bike.type_key})")
-        if bike.color:
-            model_parts.append(bike.color)
+        return {
+            "identifiers": {(DOMAIN, self.bike.vin)},
+            "manufacturer": "BMW Motorrad",
+            "model": "CE 04",
+            "name": f"BMW CE 04 ({self.bike.vin[-6:]})",
+            "sw_version": None,  # API doesn't expose firmware yet
+        }
 
-        return DeviceInfo(
-            identifiers={(DOMAIN, self._bike_id)},
-            manufacturer="BMW Motorrad",
-            name=self.bike_name,
-            model=" ".join(model_parts),
-        )
-
+    # ---------------------------------------------------------
+    # Availability
+    # ---------------------------------------------------------
     @property
     def available(self) -> bool:
-        return (
-            self._bike_id in self.coordinator.data
-            and self.coordinator.last_update_success
-        )
-
-    @property
-    def extra_state_attributes(self) -> dict:
-        bike = self.bike
-        attrs: dict = {
-            ATTR_BIKE_ID: self._bike_id,
-            ATTR_RAW: bike.raw,
-        }
-        if bike.vin:
-            attrs["vin"] = bike.vin
-        if bike.type_key:
-            attrs["type_key"] = bike.type_key
-        if bike.color:
-            attrs["color"] = bike.color
-        return attrs
+        """Entity is available if coordinator has valid data."""
+        return self.bike is not None
