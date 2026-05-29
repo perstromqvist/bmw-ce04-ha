@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "BMW CE 04 — Connect",
-        "description": "Enter your BMW CarData client ID and API settings.",
+        "description": "Enter your BMW CarData client ID and region settings.",
         "data": {
           "client_id": "BMW CarData Client ID",
           "api_host": "Motorrad API host",
@@ -15,22 +15,16 @@
       "authorize": {
         "title": "BMW CE 04 — Authorize",
         "description": "Open this URL in your browser and enter the code shown:\n\n**{verification_uri}**\n\nCode: `{user_code}`\n\nOr use the direct link: {verification_uri_complete}\n\nAfter approving, click Submit."
-      },
-      "reauth_confirm": {
-        "title": "BMW CE 04 — Reauthorize",
-        "description": "Your BMW CE 04 integration needs to be reauthorized. Follow the same steps as during setup."
       }
     },
     "error": {
       "cannot_connect": "Failed to reach BMW CarData. Check your client ID and network.",
-      "authorize_failed": "Authorization failed. Make sure you approved the device in the BMW portal.",
-      "invalid_poll_interval": "Poll interval must be between 60 and 3600 seconds."
+      "authorize_failed": "Authorization failed. Make sure you approved the device in the BMW portal."
     },
     "abort": {
       "already_configured": "BMW CE 04 is already configured."
     }
   },
-
   "entity": {
     "sensor": {
       "battery_level": { "name": "Battery Level" },
@@ -40,6 +34,7 @@
       "trip2": { "name": "Trip 2" },
       "tire_pressure_front": { "name": "Front Tire Pressure" },
       "tire_pressure_rear": { "name": "Rear Tire Pressure" },
+      "vin": { "name": "VIN" },
       "next_service_due_date": { "name": "Next Service Due Date" },
       "next_service_remaining_distance": { "name": "Next Service Remaining Distance" },
       "last_connected_time": { "name": "Last Connected" },
@@ -47,20 +42,11 @@
       "charging_time_estimation": { "name": "Charging Time Estimation" },
       "battery_soh": { "name": "Battery Maximum Capacity" }
     },
-
     "binary_sensor": {
       "low_battery": { "name": "Low Battery" },
       "front_tire_pressure_low": { "name": "Front Tire Pressure Low" },
       "rear_tire_pressure_low": { "name": "Rear Tire Pressure Low" },
-      "service_due_soon": { "name": "Service Due Soon" },
-      "service_overdue": { "name": "Service Overdue" },
-      "charging": { "name": "Charging" },
-      "online": { "name": "Online" },
-      "battery_degraded": { "name": "Battery Degraded" }
-    },
-
-    "device_tracker": {
-      "location": { "name": "Location" }
+      "service_due_soon": { "name": "Service Due Soon" }
     }
   }
 }
