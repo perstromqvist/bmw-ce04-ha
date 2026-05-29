@@ -20,7 +20,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .__init__ import STATIC_PATH
+from .const import DOMAIN, STATIC_PATH
 from .entity import CE04Entity
 from .models import CE04Data
 
@@ -33,7 +33,6 @@ class CE04SensorDescription(SensorEntityDescription):
 
 
 SENSORS: tuple[CE04SensorDescription, ...] = (
-    # ---- EV battery --------------------------------------------------
     CE04SensorDescription(
         key="battery_level",
         translation_key="battery_level",
@@ -56,7 +55,6 @@ SENSORS: tuple[CE04SensorDescription, ...] = (
         suggested_display_precision=0,
         value_fn=lambda bike: bike.remaining_range_electric_km,
     ),
-    # ---- Odometer / trip ---------------------------------------------
     CE04SensorDescription(
         key="total_mileage",
         translation_key="total_mileage",
@@ -90,7 +88,6 @@ SENSORS: tuple[CE04SensorDescription, ...] = (
         suggested_display_precision=0,
         value_fn=lambda bike: bike.trip2_km,
     ),
-    # ---- Tyre pressures ----------------------------------------------
     CE04SensorDescription(
         key="tire_pressure_front",
         translation_key="tire_pressure_front",
@@ -111,7 +108,6 @@ SENSORS: tuple[CE04SensorDescription, ...] = (
         suggested_display_precision=1,
         value_fn=lambda bike: bike.tire_pressure_rear_bar,
     ),
-    # ---- Service & Diagnostics ----------------------------------------
     CE04SensorDescription(
         key="vin",
         translation_key="vin",
@@ -141,7 +137,6 @@ SENSORS: tuple[CE04SensorDescription, ...] = (
         suggested_display_precision=0,
         value_fn=lambda bike: bike.next_service_remaining_distance_km,
     ),
-    # ---- Connectivity ------------------------------------------------
     CE04SensorDescription(
         key="last_connected_time",
         translation_key="last_connected_time",
@@ -186,16 +181,11 @@ SENSORS: tuple[CE04SensorDescription, ...] = (
 
 
 class CE04Sensor(CE04Entity, SensorEntity):
-    """Representation of a BMW CE 04 sensor."""
+    """A standard BMW CE 04 sensor."""
 
     entity_description: CE04SensorDescription
 
-    def __init__(
-        self,
-        coordinator,
-        bike_id: str,
-        description: CE04SensorDescription,
-    ) -> None:
+    def __init__(self, coordinator, bike_id: str, description: CE04SensorDescription) -> None:
         super().__init__(coordinator, bike_id)
         self.entity_description = description
         self._attr_unique_id = f"{self.bike_slug}_{description.key}"
@@ -222,12 +212,12 @@ class CE04VehicleImageSensor(CE04Entity, SensorEntity):
 
     @property
     def native_value(self) -> str:
-        """Return color code as state."""
+        """State is the color code, e.g. P0NB5."""
         return (self.bike.color if self.bike else None) or DEFAULT_IMAGE
 
     @property
     def entity_picture(self) -> str:
-        """Return URL to vehicle image based on color code."""
+        """URL to vehicle image, e.g. /api/bmw_ce04/static/p0nb5.jpg"""
         color = (self.bike.color if self.bike else None) or ""
         filename = color.lower() if color else DEFAULT_IMAGE
         return f"{STATIC_PATH}/{filename}.jpg"
