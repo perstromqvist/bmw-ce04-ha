@@ -5,6 +5,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .__init__ import STATIC_PATH
 from .entity import CE04Entity
 
 DEFAULT_IMAGE = "p0n3h"  # Light White fallback
@@ -37,12 +38,10 @@ class CE04BikeImage(CE04Entity, ImageEntity):
         self._attr_image_url = self._resolve_image_url()
 
     def _resolve_image_url(self) -> str:
-        """Build image URL from raw color code, e.g. P0NB5 -> /local/p0nb5.jpg.
-        Falls back to white (p0n3h) if color is missing.
-        """
+        """Build image URL from raw color code, e.g. P0NB5 -> /api/bmw_ce04/static/p0nb5.jpg"""
         color = (self.bike.color if self.bike else None) or ""
         filename = color.lower() if color else DEFAULT_IMAGE
-        return f"/local/{filename}.jpg"
+        return f"{STATIC_PATH}/{filename}.jpg"
 
     def _handle_coordinator_update(self) -> None:
         """Update image URL when coordinator pushes new data."""
