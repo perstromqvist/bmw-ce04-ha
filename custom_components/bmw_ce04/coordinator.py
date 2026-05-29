@@ -13,7 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import CE04ApiClient, CE04ApiError, CE04AuthError
-from .const import CONF_POLL_INTERVAL, DOMAIN
+from .const import CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL, DOMAIN
 from .models import CE04Data
 
 _LOGGER = logging.getLogger(__name__)
