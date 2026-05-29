@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import DOMAIN, MANUFACTURER, MODEL
 
 
 class CE04Entity(CoordinatorEntity):
@@ -23,9 +23,8 @@ class CE04Entity(CoordinatorEntity):
     @property
     def bike_slug(self) -> str:
         """Short slug used for unique IDs and object IDs."""
-        if not self.bike:
+        if not self.bike or not self.bike.vin:
             return "ce04"
-        # VIN is guaranteed to exist
         return self.bike.vin.lower()
 
     # ---------------------------------------------------------
@@ -37,11 +36,13 @@ class CE04Entity(CoordinatorEntity):
         if not self.bike:
             return None
 
+        vin = self.bike.vin or "unknown"
+
         return {
-            "identifiers": {(DOMAIN, self.bike.vin)},
-            "manufacturer": "BMW Motorrad",
-            "model": "CE 04",
-            "name": f"BMW CE 04 ({self.bike.vin[-6:]})",
+            "identifiers": {(DOMAIN, vin)},
+            "manufacturer": MANUFACTURER,
+            "model": MODEL,
+            "name": f"{MODEL} ({vin[-6:]})",
             "sw_version": None,  # API doesn't expose firmware yet
         }
 
