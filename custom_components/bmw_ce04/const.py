@@ -7,7 +7,7 @@ from __future__ import annotations
 DOMAIN = "bmw_ce04"
 LOGGER_NAME = DOMAIN
 
-PLATFORMS = ["sensor", "binary_sensor", "device_tracker", "image"]
+PLATFORMS = ["sensor", "binary_sensor", "device_tracker"]
 
 # ---------------------------------------------------------------------------
 # Configuration keys
