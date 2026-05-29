@@ -63,7 +63,7 @@ class CE04BikeInfoSensor(CE04Entity, SensorEntity):
             return None
 
         color = map_color(self.bike.color)
-        return f"/local/{color}.png"
+        return f"/local/{color}.jpg"
 
 
 # ---------------------------------------------------------
