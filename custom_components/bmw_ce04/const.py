@@ -56,3 +56,9 @@ MODEL = "CE 04"
 DEVICE_CODE_ENDPOINT = "/gcdm/oauth/device/code"
 TOKEN_ENDPOINT = "/gcdm/oauth/token"
 BIKES_ENDPOINT_TMPL = "/v2/service/{country}/bmc-user-bikes"
+
+# ---------------------------------------------------------------------------
+# Static file serving
+# ---------------------------------------------------------------------------
+
+STATIC_PATH = "/api/bmw_ce04/static"
