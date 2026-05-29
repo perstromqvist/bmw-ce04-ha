@@ -4,11 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from .helpers import (
-    parse_timestamp,
-    km_from_meters,
-    map_color,
-)
+from .helpers import parse_timestamp, km_from_meters
 
 
 @dataclass(slots=True)
@@ -19,7 +15,7 @@ class CE04Data:
     name: str | None
     vin: str | None
     type_key: str | None
-    color: str | None
+    color: str | None  # raw BMW color code e.g. "P0NB5"
 
     battery_level: int | float | None
     remaining_range_electric_km: float | None
@@ -49,7 +45,7 @@ class CE04Data:
     def from_api(cls, data: dict[str, Any]) -> "CE04Data":
         """Create CE04Data from a raw BMW API dict."""
 
-        # remainingRangeElectric is null in the API, fallback to remainingRange
+        # remainingRangeElectric is null in API, fallback to remainingRange
         remaining_range_raw = (
             data.get("remainingRangeElectric")
             if data.get("remainingRangeElectric") is not None
@@ -66,7 +62,7 @@ class CE04Data:
             name=data.get("name"),
             vin=data.get("vin"),
             type_key=data.get("typeKey"),
-            color=map_color(data.get("color")),
+            color=data.get("color"),  # raw code, e.g. "P0NB5"
 
             battery_level=data.get("energyLevel"),
             remaining_range_electric_km=km_from_meters(remaining_range_raw),
