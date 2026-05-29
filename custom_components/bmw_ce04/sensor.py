@@ -22,6 +22,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .entity import CE04Entity
 from .models import CE04Data
+from .helpers import map_color
 
 
 # ---------------------------------------------------------
@@ -34,20 +35,7 @@ class CE04SensorDescription(SensorEntityDescription):
 
 
 # ---------------------------------------------------------
-# Color → image mapping (centralized)
-# ---------------------------------------------------------
-
-COLOR_MAP = {
-    "P0N3H": "white",
-    "P0NB5": "blue",
-    "P0N2M": "silver",
-}
-
-DEFAULT_COLOR = "white"
-
-
-# ---------------------------------------------------------
-# Main “bike info” sensor (only one with entity_picture)
+# Main “bike info” sensor (with entity_picture)
 # ---------------------------------------------------------
 
 class CE04BikeInfoSensor(CE04Entity, SensorEntity):
@@ -71,12 +59,11 @@ class CE04BikeInfoSensor(CE04Entity, SensorEntity):
     @property
     def entity_picture(self) -> str | None:
         """Return dynamic image based on bike color."""
-        if not self.bike or not self.bike.color:
-            return f"/local/{DEFAULT_COLOR}.png"
+        if not self.bike:
+            return None
 
-        raw_color = str(self.bike.color).upper()
-        image_name = COLOR_MAP.get(raw_color, DEFAULT_COLOR)
-        return f"/local/{image_name}.png"
+        color = map_color(self.bike.color)
+        return f"/local/{color}.png"
 
 
 # ---------------------------------------------------------
