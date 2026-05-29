@@ -209,6 +209,7 @@ class CE04ApiClient:
             raise CE04AuthError(f"Token exchange error: {err}") from err
 
     async def async_refresh_token(self) -> TokenData:
+        """Refresh access token using refresh_token."""
         if not self._token or not self._token.refresh_token:
             raise CE04AuthError("No refresh token available")
 
@@ -217,46 +218,31 @@ class CE04ApiClient:
             "client_id": self._client_id,
             "refresh_token": self._token.refresh_token,
             "grant_type": "refresh_token",
-            "response_type": "token",
-            "scope": "authenticate_user",
         }
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/x-www-form-urlencoded",
         }
 
-        try:
-            async with self._session.post(
-                url, data=payload, headers=headers, ssl=self._verify_ssl
-            ) as resp:
-                text = await resp.text()
-                _LOGGER.debug("CE04 refresh token status=%s body=%s", resp.status, text)
+        async with self._session.post(
+            url, data=payload, headers=headers, ssl=self._verify_ssl
+        ) as resp:
+            text = await resp.text()
+            _LOGGER.debug("CE04 refresh token status=%s body=%s", resp.status, text)
 
-                if resp.status >= 400:
-                    raise CE04AuthError(f"Token refresh failed: {resp.status} {text}")
+            if resp.status >= 400:
+                raise CE04AuthError(f"Token refresh failed: {resp.status} {text}")
 
-                data = await resp.json(content_type=None)
-                self._token = TokenData.from_token_response(data)
-                return self._token
-
-        except CE04AuthError:
-            raise
-        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            raise CE04AuthError(f"Token refresh network error: {err}") from err
-        except Exception as err:
-            raise CE04AuthError(f"Token refresh error: {err}") from err
+            data = await resp.json(content_type=None)
+            self._token = TokenData.from_token_response(data)
+            return self._token
 
     # ------------------------------------------------------------------
     # Token management
     # ------------------------------------------------------------------
 
     async def async_ensure_token(self) -> None:
-        """Ensure a valid token exists, refreshing proactively if near expiry.
-
-        Called by the coordinator before each poll so that token state is
-        always persisted back to config entry storage when it changes.
-        Also called internally by async_get_bikes before every request.
-        """
+        """Ensure a valid token exists, refreshing proactively if near expiry."""
         if not self._token:
             raise CE04AuthError("Not authenticated")
         if self._token.expires_at <= datetime.now(tz=UTC) + TOKEN_EXPIRY_MARGIN:
