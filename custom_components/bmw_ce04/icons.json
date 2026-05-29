@@ -1,0 +1,29 @@
+{
+  "entity": {
+    "sensor": {
+      "battery_level": { "default": "mdi:battery-charging" },
+      "remaining_range": { "default": "mdi:map-marker-distance" },
+      "total_mileage": { "default": "mdi:speedometer" },
+      "trip1": { "default": "mdi:road-variant" },
+      "trip2": { "default": "mdi:road-variant" },
+      "tire_pressure_front": { "default": "mdi:gauge" },
+      "tire_pressure_rear": { "default": "mdi:gauge" },
+      "vin": { "default": "mdi:barcode" },
+      "next_service_due_date": { "default": "mdi:wrench-clock" },
+      "next_service_remaining_distance": { "default": "mdi:wrench-outline" },
+      "last_connected_time": { "default": "mdi:clock-check-outline" },
+      "last_activated_time": { "default": "mdi:clock-start" },
+      "charging_time_estimation": { "default": "mdi:battery-clock" },
+      "battery_soh": { "default": "mdi:battery-heart-variant" }
+    },
+    "binary_sensor": {
+      "low_battery": { "default": "mdi:battery-alert" },
+      "front_tire_pressure_low": { "default": "mdi:car-tire-alert" },
+      "rear_tire_pressure_low": { "default": "mdi:car-tire-alert" },
+      "service_due_soon": { "default": "mdi:wrench" }
+    },
+    "device_tracker": {
+      "location": { "default": "mdi:map-marker" }
+    }
+  }
+}
