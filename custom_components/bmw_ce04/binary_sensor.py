@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from typing import Callable
 
 from homeassistant.components.binary_sensor import (
@@ -27,12 +28,12 @@ BINARY_SENSORS: tuple[CE04BinarySensorDescription, ...] = (
     # ---------------------------------------------------------
     CE04BinarySensorDescription(
         key="low_battery",
+        translation_key="low_battery",
         name="Low battery",
         icon="mdi:battery-alert",
         device_class=BinarySensorDeviceClass.PROBLEM,
         value_fn=lambda bike: (
-            bike.battery_level is not None
-            and bike.battery_level <= 20
+            bike.battery_level is not None and bike.battery_level <= 20
         ),
     ),
 
@@ -41,6 +42,7 @@ BINARY_SENSORS: tuple[CE04BinarySensorDescription, ...] = (
     # ---------------------------------------------------------
     CE04BinarySensorDescription(
         key="front_tire_pressure_low",
+        translation_key="front_tire_pressure_low",
         name="Front tire pressure low",
         icon="mdi:car-tire-alert",
         device_class=BinarySensorDeviceClass.PROBLEM,
@@ -51,6 +53,7 @@ BINARY_SENSORS: tuple[CE04BinarySensorDescription, ...] = (
     ),
     CE04BinarySensorDescription(
         key="rear_tire_pressure_low",
+        translation_key="rear_tire_pressure_low",
         name="Rear tire pressure low",
         icon="mdi:car-tire-alert",
         device_class=BinarySensorDeviceClass.PROBLEM,
@@ -65,6 +68,7 @@ BINARY_SENSORS: tuple[CE04BinarySensorDescription, ...] = (
     # ---------------------------------------------------------
     CE04BinarySensorDescription(
         key="service_due_soon",
+        translation_key="service_due_soon",
         name="Service due soon",
         icon="mdi:wrench",
         device_class=BinarySensorDeviceClass.PROBLEM,
@@ -75,6 +79,7 @@ BINARY_SENSORS: tuple[CE04BinarySensorDescription, ...] = (
     ),
     CE04BinarySensorDescription(
         key="service_overdue",
+        translation_key="service_overdue",
         name="Service overdue",
         icon="mdi:wrench-clock",
         device_class=BinarySensorDeviceClass.PROBLEM,
@@ -89,27 +94,40 @@ BINARY_SENSORS: tuple[CE04BinarySensorDescription, ...] = (
     # ---------------------------------------------------------
     CE04BinarySensorDescription(
         key="charging",
+        translation_key="charging",
         name="Charging",
         device_class=BinarySensorDeviceClass.BATTERY_CHARGING,
-        value_fn=lambda bike: bike.raw.get("chargingMode") is not None,
+        value_fn=lambda bike: bike.raw.get("chargingMode") in ("ON", "CHARGING", True),
     ),
 
     # ---------------------------------------------------------
-    # Online
+    # Connectivity
     # ---------------------------------------------------------
     CE04BinarySensorDescription(
         key="online",
+        translation_key="online",
         name="Online",
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
-        value_fn=lambda bike: bike.last_connected_time is not None,
+        value_fn=lambda bike: _is_recently_connected(bike.last_connected_time),
     ),
 )
 
 
+def _is_recently_connected(last_connected: datetime | None) -> bool:
+    """Return True if scooter was connected within the last 15 minutes."""
+    if last_connected is None:
+        return False
+    return datetime.now(timezone.utc) - last_connected < timedelta(minutes=15)
+
+
 class CE04BinarySensor(CE04Entity, BinarySensorEntity):
+    """Representation of a BMW CE 04 binary sensor."""
+
     entity_description: CE04BinarySensorDescription
 
-    def __init__(self, coordinator, bike_id: str, description: CE04BinarySensorDescription) -> None:
+    def __init__(
+        self, coordinator, bike_id: str, description: CE04BinarySensorDescription
+    ) -> None:
         super().__init__(coordinator, bike_id)
         self.entity_description = description
         self._attr_unique_id = f"{self.bike_slug}_{description.key}"
@@ -127,6 +145,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
+    """Set up BMW CE 04 binary sensor entities."""
     coordinator = entry.runtime_data.coordinator
 
     entities: list[BinarySensorEntity] = [
