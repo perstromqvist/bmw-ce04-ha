@@ -5,7 +5,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import COLOR_MAP, DEFAULT_COLOR
 from .entity import CE04Entity
 
 
@@ -24,7 +23,7 @@ async def async_setup_entry(
 
 
 class CE04BikeImage(CE04Entity, ImageEntity):
-    """Image entity for BMW CE 04 vehicle."""
+    """Image entity showing the CE 04 vehicle in its actual color."""
 
     _attr_has_entity_name = True
     _attr_translation_key = "vehicle_image"
@@ -36,10 +35,9 @@ class CE04BikeImage(CE04Entity, ImageEntity):
         self._attr_image_url = self._resolve_image_url()
 
     def _resolve_image_url(self) -> str:
-        """Return the correct image URL based on the bike's color code."""
-        color_code = self.bike.color if self.bike else None
-        color_name = COLOR_MAP.get(color_code, DEFAULT_COLOR) if color_code else DEFAULT_COLOR
-        return f"/local/{color_name}.jpg"
+        """Build image URL from raw color code, e.g. P0NB5 -> /local/p0nb5.jpg"""
+        color = (self.bike.color if self.bike else None) or ""
+        return f"/local/{color.lower()}.jpg"
 
     def _handle_coordinator_update(self) -> None:
         """Update image URL when coordinator pushes new data."""
