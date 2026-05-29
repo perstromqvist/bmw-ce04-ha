@@ -1,0 +1,25 @@
+force_update:
+  name: Force Update
+  description: Immediately refresh all BMW CE 04 data from the cloud.
+  fields:
+    bike_id:
+      name: Bike ID
+      description: Optional — force update for a specific bike. If omitted, all bikes are refreshed.
+      required: false
+      selector:
+        text:
+
+export_raw_data:
+  name: Export Raw Data
+  description: Returns the latest raw API data for debugging purposes.
+  fields:
+    bike_id:
+      name: Bike ID
+      description: Optional — export raw data for a specific bike.
+      required: false
+      selector:
+        text:
+
+clear_debug_dump:
+  name: Clear Debug Dump
+  description: Deletes the bmw_ce04_raw_debug.json file if it exists.
