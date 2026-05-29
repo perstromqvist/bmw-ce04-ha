@@ -21,6 +21,8 @@ from .const import (
     DEFAULT_AUTH_HOST,
     DEFAULT_POLL_INTERVAL,
     DOMAIN,
+    MIN_POLL_INTERVAL,
+    MAX_POLL_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -36,49 +38,60 @@ class CE04ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._verification_uri_complete: str | None = None
         self._user_code: str | None = None
         self._code_verifier: str | None = None
+        self._reauth_entry: config_entries.ConfigEntry | None = None
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    # ---------------------------------------------------------
+    # Helpers
+    # ---------------------------------------------------------
+
+    def _create_client(self, data: dict[str, Any]) -> CE04ApiClient:
+        return CE04ApiClient(
+            async_get_clientsession(self.hass),
+            client_id=data[CONF_CLIENT_ID],
+            api_host=data[CONF_API_HOST],
+            auth_host=data[CONF_AUTH_HOST],
+            country=data[CONF_COUNTRY],
+            verify_ssl=data[CONF_VERIFY_SSL],
+        )
+
+    # ---------------------------------------------------------
+    # User setup
+    # ---------------------------------------------------------
+
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         errors: dict[str, str] = {}
 
         if user_input is not None:
             user_input = dict(user_input)
             user_input[CONF_CLIENT_ID] = user_input[CONF_CLIENT_ID].strip().lower()
-            
-            # Hårdkoda region/språk till en-EN i bakgrunden här
             user_input[CONF_COUNTRY] = "en-EN"
-            self._user_input = user_input
 
-            await self.async_set_unique_id(user_input[CONF_CLIENT_ID])
-            self._abort_if_unique_id_configured()
-
-            client = CE04ApiClient(
-                async_get_clientsession(self.hass),
-                client_id=user_input[CONF_CLIENT_ID],
-                api_host=user_input[CONF_API_HOST],
-                auth_host=user_input[CONF_AUTH_HOST],
-                country=user_input[CONF_COUNTRY],
-                verify_ssl=user_input[CONF_VERIFY_SSL],
-            )
-
-            try:
-                code = await client.async_request_device_code()
-            except CE04AuthError as err:
-                _LOGGER.exception("CE04 auth error requesting device code: %s", err)
-                errors["base"] = "cannot_connect"
-            except Exception as err:
-                _LOGGER.exception("Unexpected CE04 error requesting device code: %s", err)
-                errors["base"] = "cannot_connect"
+            # Validate poll interval
+            poll = user_input[CONF_POLL_INTERVAL]
+            if poll < MIN_POLL_INTERVAL or poll > MAX_POLL_INTERVAL:
+                errors["base"] = "invalid_poll_interval"
             else:
-                self._device_code = code.device_code
-                self._verification_uri = code.verification_uri
-                self._verification_uri_complete = code.verification_uri_complete
-                self._user_code = code.user_code
-                self._code_verifier = code.code_verifier
-                return await self.async_step_authorize()
+                self._user_input = user_input
 
-        # CONF_COUNTRY borttaget härifrån, så det döljs i gränssnittet
+                await self.async_set_unique_id(user_input[CONF_CLIENT_ID], raise_on_progress=False)
+                self._abort_if_unique_id_configured()
+
+                client = self._create_client(user_input)
+
+                try:
+                    code = await client.async_request_device_code()
+                except CE04AuthError:
+                    errors["base"] = "cannot_connect"
+                except Exception:
+                    errors["base"] = "cannot_connect"
+                else:
+                    self._device_code = code.device_code
+                    self._verification_uri = code.verification_uri
+                    self._verification_uri_complete = code.verification_uri_complete
+                    self._user_code = code.user_code
+                    self._code_verifier = code.code_verifier
+                    return await self.async_step_authorize()
+
         schema = vol.Schema(
             {
                 vol.Required(CONF_CLIENT_ID): str,
@@ -88,45 +101,32 @@ class CE04ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_VERIFY_SSL, default=True): bool,
             }
         )
-        return self.async_show_form(
-            step_id="user", data_schema=schema, errors=errors
-        )
 
-    async def async_step_authorize(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+
+    # ---------------------------------------------------------
+    # Authorization step
+    # ---------------------------------------------------------
+
+    async def async_step_authorize(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         errors: dict[str, str] = {}
+
         placeholders = {
             "verification_uri": self._verification_uri or "",
             "verification_uri_complete": self._verification_uri_complete or "",
             "user_code": self._user_code or "",
         }
 
-        if (
-            user_input is not None
-            and self._user_input
-            and self._device_code
-            and self._code_verifier
-        ):
-            client = CE04ApiClient(
-                async_get_clientsession(self.hass),
-                client_id=self._user_input[CONF_CLIENT_ID],
-                api_host=self._user_input[CONF_API_HOST],
-                auth_host=self._user_input[CONF_AUTH_HOST],
-                country=self._user_input[CONF_COUNTRY],
-                verify_ssl=self._user_input[CONF_VERIFY_SSL],
-            )
+        if user_input is not None:
+            client = self._create_client(self._user_input)
+
             try:
                 token = await client.async_exchange_device_code(
                     self._device_code, self._code_verifier
                 )
-            except CE04AuthError as err:
-                _LOGGER.exception("CE04 auth error during token exchange: %s", err)
+            except CE04AuthError:
                 errors["base"] = "authorize_failed"
-            except Exception as err:
-                _LOGGER.exception(
-                    "Unexpected CE04 error during token exchange: %s", err
-                )
+            except Exception:
                 errors["base"] = "authorize_failed"
             else:
                 data = dict(self._user_input)
@@ -139,3 +139,20 @@ class CE04ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
             description_placeholders=placeholders,
         )
+
+    # ---------------------------------------------------------
+    # Reauthentication
+    # ---------------------------------------------------------
+
+    async def async_step_reauth(self, entry_data: dict[str, Any]) -> FlowResult:
+        """Start reauth flow."""
+        self._reauth_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
+        self._user_input = dict(self._reauth_entry.data)
+        return await self.async_step_authorize()
+
+    async def async_step_reauth_confirm(self, user_input=None) -> FlowResult:
+        """Confirm reauth."""
+        if user_input is None:
+            return self.async_show_form(step_id="reauth_confirm")
+
+        return await self.async_step_authorize()
