@@ -7,6 +7,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .entity import CE04Entity
 
+DEFAULT_IMAGE = "p0n3h"  # Light White fallback
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -35,9 +37,12 @@ class CE04BikeImage(CE04Entity, ImageEntity):
         self._attr_image_url = self._resolve_image_url()
 
     def _resolve_image_url(self) -> str:
-        """Build image URL from raw color code, e.g. P0NB5 -> /local/p0nb5.jpg"""
+        """Build image URL from raw color code, e.g. P0NB5 -> /local/p0nb5.jpg.
+        Falls back to white (p0n3h) if color is missing.
+        """
         color = (self.bike.color if self.bike else None) or ""
-        return f"/local/{color.lower()}.jpg"
+        filename = color.lower() if color else DEFAULT_IMAGE
+        return f"/local/{filename}.jpg"
 
     def _handle_coordinator_update(self) -> None:
         """Update image URL when coordinator pushes new data."""
