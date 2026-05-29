@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 import logging
 import os
-import json
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
