@@ -32,7 +32,8 @@ class CE04BikeImage(CE04Entity, ImageEntity):
     _attr_translation_key = "vehicle_image"
 
     def __init__(self, coordinator, bike_id: str) -> None:
-        super().__init__(coordinator, bike_id)
+        CE04Entity.__init__(self, coordinator, bike_id)
+        ImageEntity.__init__(self, coordinator.hass)
         self._attr_unique_id = f"{self.bike_slug}_vehicle_image"
         self._attr_suggested_object_id = "vehicle_image"
         self._attr_image_url = self._resolve_image_url()
