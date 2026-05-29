@@ -205,21 +205,6 @@ class CE04Sensor(CE04Entity, SensorEntity):
             return None
         return self.entity_description.value_fn(self.bike)
 
-    @property
-    def entity_picture(self) -> str | None:
-        """Dynamisk bild baserat på hojens färg."""
-        if not self.bike or not self.bike.color:
-            return "/local/white.png"
-
-        raw_color = str(self.bike.color).upper()
-        color_map = {
-            "P0N3H": "white",
-            "P0NB5": "blue",
-            "P0N2M": "silver",
-        }
-        image_name = color_map.get(raw_color, "white")
-        return f"/local/{image_name}.png"
-
 
 async def async_setup_entry(
     hass: HomeAssistant,
