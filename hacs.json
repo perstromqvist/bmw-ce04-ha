@@ -2,7 +2,7 @@
   "name": "BMW Motorrad CE 04",
   "description": "Home Assistant integration for the BMW Motorrad CE 04 electric scooter via BMW CarData.",
   "homeassistant": "2025.1.0",
-  "iot_class": "cloud_polling"
-  "documentation": "https://github.com/perstromqvist/bmw-ce04-ha"
+  "iot_class": "cloud_polling",
+  "documentation": "https://github.com/perstromqvist/bmw-ce04-ha",
   "issue_tracker": "https://github.com/perstromqvist/bmw-ce04-ha/issues"
 }
