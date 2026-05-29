@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import logging
 import os
+from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -14,10 +14,11 @@ from .const import (
     CONF_AUTH_HOST,
     CONF_CLIENT_ID,
     CONF_COUNTRY,
+    CONF_POLL_INTERVAL,
     CONF_VERIFY_SSL,
+    DEFAULT_POLL_INTERVAL,
     DOMAIN,
     PLATFORMS,
-    DEFAULT_VERIFY_SSL,
 )
 from .coordinator import CE04Coordinator
 
@@ -26,6 +27,7 @@ _LOGGER = logging.getLogger(__name__)
 
 @dataclass(slots=True)
 class RuntimeData:
+    """Runtime data for the integration."""
     client: CE04ApiClient
     coordinator: CE04Coordinator
 
@@ -42,10 +44,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         api_host=entry.data[CONF_API_HOST],
         auth_host=entry.data[CONF_AUTH_HOST],
         country=entry.data[CONF_COUNTRY],
-        verify_ssl=entry.data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
+        verify_ssl=entry.data.get(CONF_VERIFY_SSL, True),
     )
 
-    # Load stored token
+    # Load stored token if available
     if token_data := entry.data.get("token"):
         client.set_token(TokenData.from_token_response(token_data))
 
@@ -57,33 +59,49 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Save runtime objects
     entry.runtime_data = RuntimeData(client=client, coordinator=coordinator)
 
-    # Register services (per entry)
+    # Register services (safely - only once)
+    await _async_register_services(hass)
+
+    # Forward platforms
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    return True
+
+
+async def _async_register_services(hass: HomeAssistant) -> None:
+    """Register services once per integration load."""
+    if hass.services.has_service(DOMAIN, "force_update"):
+        return  # Already registered
+
     async def handle_force_update(call: ServiceCall):
         """Force an immediate update."""
         bike_id = call.data.get("bike_id")
-        _LOGGER.debug("Service force_update called (bike_id=%s)", bike_id)
+        _LOGGER.info("Service force_update called (bike_id=%s)", bike_id)
+
+        coordinator = _get_coordinator_from_call(hass, call)
+        if not coordinator:
+            return
 
         await coordinator.async_request_refresh()
 
-        if bike_id:
-            return coordinator.data.get(bike_id)
-        return coordinator.data
-
     async def handle_export_raw(call: ServiceCall):
-        """Return raw API data from coordinator."""
+        """Export raw API data for debugging."""
         bike_id = call.data.get("bike_id")
-        _LOGGER.debug("Service export_raw_data called (bike_id=%s)", bike_id)
+        _LOGGER.info("Service export_raw_data called (bike_id=%s)", bike_id)
+
+        coordinator = _get_coordinator_from_call(hass, call)
+        if not coordinator:
+            return
 
         if bike_id:
             bike = coordinator.data.get(bike_id)
             return bike.raw if bike else None
-
         return {bid: b.raw for bid, b in coordinator.data.items()}
 
     async def handle_clear_debug(call: ServiceCall):
         """Delete the debug dump file if it exists."""
         dump_path = os.path.join(hass.config.config_dir, "bmw_ce04_raw_debug.json")
-        _LOGGER.debug("Service clear_debug_dump called")
+        _LOGGER.info("Service clear_debug_dump called")
 
         if os.path.exists(dump_path):
             try:
@@ -93,17 +111,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             except Exception as err:
                 _LOGGER.error("Failed to delete debug dump: %s", err)
                 return False
-
-        return True  # Nothing to delete
+        return True
 
     hass.services.async_register(DOMAIN, "force_update", handle_force_update)
     hass.services.async_register(DOMAIN, "export_raw_data", handle_export_raw)
     hass.services.async_register(DOMAIN, "clear_debug_dump", handle_clear_debug)
 
-    # Forward platforms
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    return True
+def _get_coordinator_from_call(hass: HomeAssistant, call: ServiceCall):
+    """Helper to get coordinator from any entry (multi-entry support)."""
+    for entry in hass.config_entries.async_entries(DOMAIN):
+        if entry.runtime_data and hasattr(entry.runtime_data, "coordinator"):
+            return entry.runtime_data.coordinator
+    return None
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -113,6 +133,12 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
     if unload_ok:
+        # Remove services when last entry is unloaded
+        if len(hass.config_entries.async_entries(DOMAIN)) <= 1:
+            hass.services.async_remove(DOMAIN, "force_update")
+            hass.services.async_remove(DOMAIN, "export_raw_data")
+            hass.services.async_remove(DOMAIN, "clear_debug_dump")
+
         entry.runtime_data = None
 
     return unload_ok
