@@ -23,7 +23,10 @@ class CE04Coordinator(DataUpdateCoordinator[dict[str, CE04Data]]):
     """Coordinator responsible for fetching CE04 data."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, client: CE04ApiClient) -> None:
-        poll_interval = entry.options.get(CONF_POLL_INTERVAL, entry.data[CONF_POLL_INTERVAL])
+        poll_interval = (
+            entry.options.get(CONF_POLL_INTERVAL)
+            or entry.data.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL)
+        )
 
         super().__init__(
             hass,
