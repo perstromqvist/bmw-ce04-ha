@@ -28,35 +28,84 @@
   "entity": {
     "sensor": {
       "battery_level": {
-        "name": "Battery Level"
+        "name": "Battery level",
+        "default": "mdi:battery-charging"
       },
-      "range": {
-        "name": "Range"
+      "remaining_range": {
+        "name": "Remaining range",
+        "default": "mdi:map-marker-distance"
       },
-      "odometer": {
-        "name": "Odometer"
+      "total_mileage": {
+        "name": "Total mileage",
+        "default": "mdi:speedometer"
       },
       "trip1": {
-        "name": "Trip 1"
+        "name": "Trip 1",
+        "default": "mdi:road-variant"
       },
       "trip2": {
-        "name": "Trip 2"
+        "name": "Trip 2",
+        "default": "mdi:road-variant"
       },
-      "last_updated": {
-        "name": "Last Updated"
+      "tire_pressure_front": {
+        "name": "Tire pressure front",
+        "default": "mdi:gauge"
+      },
+      "tire_pressure_rear": {
+        "name": "Tire pressure rear",
+        "default": "mdi:gauge"
+      },
+      "vin": {
+        "name": "VIN",
+        "default": "mdi:barcode"
+      },
+      "next_service_due_date": {
+        "name": "Next service due date",
+        "default": "mdi:wrench-clock"
+      },
+      "next_service_remaining_distance": {
+        "name": "Next service remaining distance",
+        "default": "mdi:wrench-outline"
+      },
+      "last_connected_time": {
+        "name": "Last connected time",
+        "default": "mdi:clock-check-outline"
+      },
+      "last_activated_time": {
+        "name": "Last activated time",
+        "default": "mdi:clock-start"
+      },
+      "charging_time_estimation": {
+        "name": "Charging time estimation",
+        "default": "mdi:battery-clock"
+      },
+      "battery_soh": {
+        "name": "Battery maximum capacity",
+        "default": "mdi:battery-heart-variant"
       }
     },
     "binary_sensor": {
-      "charging": {
-        "name": "Charging"
-      },
       "low_battery": {
-        "name": "Low Battery"
+        "name": "Low battery",
+        "default": "mdi:battery-alert"
+      },
+      "front_tire_pressure_low": {
+        "name": "Front tire pressure low",
+        "default": "mdi:car-tire-alert"
+      },
+      "rear_tire_pressure_low": {
+        "name": "Rear tire pressure low",
+        "default": "mdi:car-tire-alert"
+      },
+      "service_due_soon": {
+        "name": "Service due soon",
+        "default": "mdi:wrench"
       }
     },
-    "image": {
-      "vehicle_image": {
-        "name": "Vehicle Image"
+    "device_tracker": {
+      "location": {
+        "name": "Location",
+        "default": "mdi:map-marker"
       }
     }
   }
