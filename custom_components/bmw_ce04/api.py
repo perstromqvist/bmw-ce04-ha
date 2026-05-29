@@ -9,6 +9,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import aiohttp
+import asyncio
 
 from .const import BIKES_ENDPOINT_TMPL, DEVICE_CODE_ENDPOINT, TOKEN_ENDPOINT
 from .models import CE04Data
@@ -111,7 +112,7 @@ class CE04ApiClient:
         return base64.urlsafe_b64encode(digest).decode("utf-8").rstrip("=")
 
     # ------------------------------------------------------------------
-    # Device-code flow (same as Motorrad / CarData)
+    # Device-code flow
     # ------------------------------------------------------------------
 
     async def async_request_device_code(self) -> DeviceCodeData:
@@ -158,8 +159,12 @@ class CE04ApiClient:
                     code_verifier=code_verifier,
                     code_challenge=code_challenge,
                 )
+
         except CE04AuthError:
             raise
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            _LOGGER.error("Network error during device-code request: %s", err)
+            raise CE04AuthError(f"Device code request network error: {err}") from err
         except Exception as err:
             _LOGGER.exception("CE04 device-code request error: %s", err)
             raise CE04AuthError(f"Device code request error: {err}") from err
@@ -180,18 +185,26 @@ class CE04ApiClient:
             "Content-Type": "application/x-www-form-urlencoded",
         }
 
-        async with self._session.post(
-            url, data=payload, headers=headers, ssl=self._verify_ssl
-        ) as resp:
-            text = await resp.text()
-            _LOGGER.debug("CE04 token exchange status=%s body=%s", resp.status, text)
+        try:
+            async with self._session.post(
+                url, data=payload, headers=headers, ssl=self._verify_ssl
+            ) as resp:
+                text = await resp.text()
+                _LOGGER.debug("CE04 token exchange status=%s body=%s", resp.status, text)
 
-            if resp.status >= 400:
-                raise CE04AuthError(f"Token exchange failed: {resp.status} {text}")
+                if resp.status >= 400:
+                    raise CE04AuthError(f"Token exchange failed: {resp.status} {text}")
 
-            data = await resp.json(content_type=None)
-            self._token = TokenData.from_token_response(data)
-            return self._token
+                data = await resp.json(content_type=None)
+                self._token = TokenData.from_token_response(data)
+                return self._token
+
+        except CE04AuthError:
+            raise
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            raise CE04AuthError(f"Token exchange network error: {err}") from err
+        except Exception as err:
+            raise CE04AuthError(f"Token exchange error: {err}") from err
 
     async def async_refresh_token(self) -> TokenData:
         if not self._token or not self._token.refresh_token:
@@ -210,18 +223,26 @@ class CE04ApiClient:
             "Content-Type": "application/x-www-form-urlencoded",
         }
 
-        async with self._session.post(
-            url, data=payload, headers=headers, ssl=self._verify_ssl
-        ) as resp:
-            text = await resp.text()
-            _LOGGER.debug("CE04 refresh token status=%s body=%s", resp.status, text)
+        try:
+            async with self._session.post(
+                url, data=payload, headers=headers, ssl=self._verify_ssl
+            ) as resp:
+                text = await resp.text()
+                _LOGGER.debug("CE04 refresh token status=%s body=%s", resp.status, text)
 
-            if resp.status >= 400:
-                raise CE04AuthError(f"Token refresh failed: {resp.status} {text}")
+                if resp.status >= 400:
+                    raise CE04AuthError(f"Token refresh failed: {resp.status} {text}")
 
-            data = await resp.json(content_type=None)
-            self._token = TokenData.from_token_response(data)
-            return self._token
+                data = await resp.json(content_type=None)
+                self._token = TokenData.from_token_response(data)
+                return self._token
+
+        except CE04AuthError:
+            raise
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            raise CE04AuthError(f"Token refresh network error: {err}") from err
+        except Exception as err:
+            raise CE04AuthError(f"Token refresh error: {err}") from err
 
     # ------------------------------------------------------------------
     # Data fetch
@@ -243,36 +264,42 @@ class CE04ApiClient:
 
         _LOGGER.debug("CE04 bikes request url=%s", url)
 
-        async with self._session.get(url, headers=headers, ssl=self._verify_ssl) as resp:
-            text = await resp.text()
-            _LOGGER.debug("CE04 bikes status=%s body=%s", resp.status, text)
+        try:
+            async with self._session.get(url, headers=headers, ssl=self._verify_ssl) as resp:
+                text = await resp.text()
+                _LOGGER.debug("CE04 bikes status=%s body=%s", resp.status, text)
 
-            if resp.status == 401:
-                _LOGGER.debug("401 from bikes endpoint, trying token refresh")
-                await self.async_refresh_token()
-                headers["Authorization"] = f"Bearer {self._token.access_token}"
+                if resp.status == 401:
+                    _LOGGER.debug("401 from bikes endpoint, trying token refresh")
+                    await self.async_refresh_token()
+                    headers["Authorization"] = f"Bearer {self._token.access_token}"
 
-                async with self._session.get(
-                    url, headers=headers, ssl=self._verify_ssl
-                ) as retry_resp:
-                    retry_text = await retry_resp.text()
-                    _LOGGER.debug(
-                        "CE04 bikes retry status=%s body=%s",
-                        retry_resp.status,
-                        retry_text,
-                    )
-                    if retry_resp.status >= 400:
-                        raise CE04AuthError(
-                            f"Unauthorized after refresh: {retry_resp.status} {retry_text}"
+                    async with self._session.get(
+                        url, headers=headers, ssl=self._verify_ssl
+                    ) as retry_resp:
+                        retry_text = await retry_resp.text()
+                        _LOGGER.debug(
+                            "CE04 bikes retry status=%s body=%s",
+                            retry_resp.status,
+                            retry_text,
                         )
-                    data = await retry_resp.json(content_type=None)
-                    return self._parse_bikes(data)
+                        if retry_resp.status >= 400:
+                            raise CE04AuthError(
+                                f"Unauthorized after refresh: {retry_resp.status} {retry_text}"
+                            )
+                        data = await retry_resp.json(content_type=None)
+                        return self._parse_bikes(data)
 
-            if resp.status >= 400:
-                raise CE04ApiError(f"Bike fetch failed: {resp.status} {text}")
+                if resp.status >= 400:
+                    raise CE04ApiError(f"Bike fetch failed: {resp.status} {text}")
 
-            data = await resp.json(content_type=None)
-            return self._parse_bikes(data)
+                data = await resp.json(content_type=None)
+                return self._parse_bikes(data)
+
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            raise CE04ApiError(f"Network error fetching bikes: {err}") from err
+        except Exception as err:
+            raise CE04ApiError(f"Unexpected error fetching bikes: {err}") from err
 
     def _parse_bikes(self, data: Any) -> list[CE04Data]:
         """Parse the API response into a list of CE04Data objects."""
