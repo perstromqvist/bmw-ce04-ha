@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
+from .const import COLOR_MAP, DEFAULT_COLOR   # ← lägg till denna import
+
 
 def parse_timestamp(value: Any) -> datetime | None:
     """Convert BMW timestamps (epoch or ISO) to datetime."""
@@ -33,13 +35,8 @@ def km_from_meters(value: Any) -> float | None:
         return None
 
 
-COLOR_MAP = {
-    "P0N3H": "white",
-    "P0NB5": "blue",
-    "P0N2M": "silver",
-}
-
 def map_color(code: str | None) -> str:
+    """Map BMW color code to filename."""
     if not code:
-        return "unknown"
-    return COLOR_MAP.get(code, "unknown")
+        return DEFAULT_COLOR
+    return COLOR_MAP.get(code, DEFAULT_COLOR)   # ← ändra "unknown" till DEFAULT_COLOR
