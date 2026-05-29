@@ -3,7 +3,9 @@ from __future__ import annotations
 import logging
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -14,16 +16,16 @@ from .const import (
     CONF_AUTH_HOST,
     CONF_CLIENT_ID,
     CONF_COUNTRY,
-    CONF_POLL_INTERVAL,
     CONF_VERIFY_SSL,
-    DEFAULT_POLL_INTERVAL,
-    DOMAIN,
     DEFAULT_COUNTRY,
+    DOMAIN,
     PLATFORMS,
 )
 from .coordinator import CE04Coordinator
 
 _LOGGER = logging.getLogger(__name__)
+
+STATIC_PATH = f"/api/{DOMAIN}/static"
 
 
 @dataclass(slots=True)
@@ -37,6 +39,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up BMW CE 04 integration."""
     _LOGGER.debug("Setting up BMW CE 04 entry %s", entry.entry_id)
 
+    # Register static files (www/ folder) once
+    await _async_register_static_path(hass)
+
     session = async_get_clientsession(hass)
 
     client = CE04ApiClient(
@@ -48,52 +53,54 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         verify_ssl=entry.data.get(CONF_VERIFY_SSL, True),
     )
 
-    # Load stored token if available
     if token_data := entry.data.get("token"):
         client.set_token(TokenData.from_token_response(token_data))
 
     coordinator = CE04Coordinator(hass, entry, client)
-
-    # First data fetch
     await coordinator.async_config_entry_first_refresh()
 
-    # Save runtime objects
     entry.runtime_data = RuntimeData(client=client, coordinator=coordinator)
 
-    # Register services (safely - only once)
     await _async_register_services(hass)
-
-    # Forward platforms
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
 
 
+async def _async_register_static_path(hass: HomeAssistant) -> None:
+    """Register the www/ folder as a static path served under /api/bmw_ce04/static/."""
+    if getattr(hass.data, f"_{DOMAIN}_static_registered", False):
+        return
+
+    www_path = Path(__file__).parent / "www"
+    if www_path.is_dir():
+        await hass.http.async_register_static_paths(
+            [StaticPathConfig(STATIC_PATH, str(www_path), cache_headers=True)]
+        )
+        _LOGGER.debug("Registered static path %s -> %s", STATIC_PATH, www_path)
+
+    hass.data[f"_{DOMAIN}_static_registered"] = True
+
+
 async def _async_register_services(hass: HomeAssistant) -> None:
     """Register services once per integration load."""
     if hass.services.has_service(DOMAIN, "force_update"):
-        return  # Already registered
+        return
 
     async def handle_force_update(call: ServiceCall):
         """Force an immediate update."""
         bike_id = call.data.get("bike_id")
         _LOGGER.info("Service force_update called (bike_id=%s)", bike_id)
-
         coordinator = _get_coordinator_from_call(hass, call)
-        if not coordinator:
-            return
-
-        await coordinator.async_request_refresh()
+        if coordinator:
+            await coordinator.async_request_refresh()
 
     async def handle_export_raw(call: ServiceCall):
         """Export raw API data for debugging."""
         bike_id = call.data.get("bike_id")
-        _LOGGER.info("Service export_raw_data called (bike_id=%s)", bike_id)
-
         coordinator = _get_coordinator_from_call(hass, call)
         if not coordinator:
             return
-
         if bike_id:
             bike = coordinator.data.get(bike_id)
             return bike.raw if bike else None
@@ -102,8 +109,6 @@ async def _async_register_services(hass: HomeAssistant) -> None:
     async def handle_clear_debug(call: ServiceCall):
         """Delete the debug dump file if it exists."""
         dump_path = os.path.join(hass.config.config_dir, "bmw_ce04_raw_debug.json")
-        _LOGGER.info("Service clear_debug_dump called")
-
         if os.path.exists(dump_path):
             try:
                 os.remove(dump_path)
@@ -120,7 +125,7 @@ async def _async_register_services(hass: HomeAssistant) -> None:
 
 
 def _get_coordinator_from_call(hass: HomeAssistant, call: ServiceCall):
-    """Helper to get coordinator from any entry (multi-entry support)."""
+    """Get coordinator from any loaded entry."""
     for entry in hass.config_entries.async_entries(DOMAIN):
         if entry.runtime_data and hasattr(entry.runtime_data, "coordinator"):
             return entry.runtime_data.coordinator
@@ -134,11 +139,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
     if unload_ok:
-        # Remove services when last entry is unloaded
         if len(hass.config_entries.async_entries(DOMAIN)) <= 1:
             hass.services.async_remove(DOMAIN, "force_update")
             hass.services.async_remove(DOMAIN, "export_raw_data")
             hass.services.async_remove(DOMAIN, "clear_debug_dump")
+            hass.data.pop(f"_{DOMAIN}_static_registered", None)
 
         entry.runtime_data = None
 
