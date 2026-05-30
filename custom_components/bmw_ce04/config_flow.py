@@ -49,7 +49,7 @@ class CE04ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         config_entry: config_entries.ConfigEntry,
     ) -> CE04OptionsFlow:
         """Return options flow."""
-        return CE04OptionsFlow(config_entry)
+        return CE04OptionsFlow()
 
     def _build_client(self, data: dict[str, Any]) -> CE04ApiClient:
         return CE04ApiClient(
@@ -132,6 +132,12 @@ class CE04ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.exception("Unexpected error exchanging device code")
                 errors["base"] = "authorize_failed"
             else:
+                if self._reauth_entry is not None:
+                    return self.async_update_reload_and_abort(
+                        self._reauth_entry,
+                        data={**self._user_input, "token": token.as_storage_dict()},
+                    )
+
                 await self.async_set_unique_id(
                     self._user_input[CONF_CLIENT_ID], raise_on_progress=False
                 )
@@ -199,9 +205,6 @@ class CE04ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 class CE04OptionsFlow(config_entries.OptionsFlow):
     """Handle options flow."""
-
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        self.config_entry = config_entry
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
