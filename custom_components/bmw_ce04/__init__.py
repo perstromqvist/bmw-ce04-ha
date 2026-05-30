@@ -7,7 +7,7 @@ from pathlib import Path
 
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import CE04ApiClient, TokenData
@@ -94,10 +94,10 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         bike_id = call.data.get("bike_id")
         coordinator = _get_coordinator_from_call(hass, call)
         if not coordinator:
-            return
+            return {}
         if bike_id:
             bike = coordinator.data.get(bike_id)
-            return bike.raw if bike else None
+            return bike.raw if bike else {}
         return {bid: b.raw for bid, b in coordinator.data.items()}
 
     async def handle_clear_debug(call: ServiceCall):
@@ -112,7 +112,12 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         return True
 
     hass.services.async_register(DOMAIN, "force_update", handle_force_update)
-    hass.services.async_register(DOMAIN, "export_raw_data", handle_export_raw)
+    hass.services.async_register(
+        DOMAIN,
+        "export_raw_data",
+        handle_export_raw,
+        supports_response=SupportsResponse.OPTIONAL,
+    )
     hass.services.async_register(DOMAIN, "clear_debug_dump", handle_clear_debug)
 
 
