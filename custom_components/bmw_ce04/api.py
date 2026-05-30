@@ -322,4 +322,8 @@ class CE04ApiClient:
         else:
             raise CE04ApiError(f"Unexpected payload type: {type(data)!r}")
 
-        return [CE04Data.from_api(item) for item in items]
+        return [
+            CE04Data.from_api(item)
+            for item in items
+            if not (isinstance(item, dict) and item.get("_deleted"))
+        ]
