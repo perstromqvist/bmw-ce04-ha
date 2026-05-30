@@ -21,6 +21,9 @@ A custom Home Assistant integration for the **BMW Motorrad CE 04** electric scoo
 
 This integration is **read‑only** and does **not** send any remote commands to the scooter.
 
+> [!IMPORTANT]
+> **Unofficial integration.** This project is independent and is **not** affiliated with, endorsed by, or sponsored by BMW. *BMW*, *BMW Motorrad*, the *BMW logo*, and *CE 04* are trademarks of Bayerische Motoren Werke AG (BMW AG), used here solely for identification purposes.
+
 ---
 
 ## 🚀 Features
@@ -169,3 +172,5 @@ The report includes configuration (with tokens redacted), entity state, and bike
 ## 📄 License
 
 MIT — see [LICENSE](LICENSE).
+
+This is an independent, community project and is not affiliated with or endorsed by BMW AG. All BMW trademarks and the BMW logo remain the property of Bayerische Motoren Werke AG and are used here for identification purposes only.
