@@ -13,6 +13,9 @@
   <a href="https://www.home-assistant.io">
     <img src="https://img.shields.io/badge/Home--Assistant-Compatible-blueviolet.svg?style=for-the-badge&logo=home-assistant" alt="Home Assistant">
   </a>
+  <a href="https://claude.ai">
+    <img src="https://img.shields.io/badge/Code%20reviewed%20with-Claude-D97757?style=for-the-badge&logo=claude&logoColor=fff" alt="Code reviewed with Claude">
+  </a>
 </p>
 
 ---
