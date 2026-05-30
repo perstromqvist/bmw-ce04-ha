@@ -24,7 +24,13 @@ from .const import DOMAIN, STATIC_PATH
 from .entity import CE04Entity
 from .models import CE04Data
 
-DEFAULT_IMAGE = "p0n3h"  # Light White fallback
+# Generic fallback image. Any colour code we don't ship an image for falls
+# back to this — just drop your own www/mc_image.jpg in to customise it.
+DEFAULT_IMAGE = "mc_image"
+
+# Colour codes (lowercased) we ship a matching <code>.jpg for in www/.
+# Add a new code here when you add its image file.
+AVAILABLE_IMAGES = {"p0nb5", "p0n3h", "p0n2m"}
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -217,9 +223,14 @@ class CE04VehicleImageSensor(CE04Entity, SensorEntity):
 
     @property
     def entity_picture(self) -> str:
-        """URL to vehicle image, e.g. /api/bmw_ce04/static/p0nb5.jpg"""
-        color = (self.bike.color if self.bike else None) or ""
-        filename = color.lower() if color else DEFAULT_IMAGE
+        """URL to the vehicle image for the bike's colour.
+
+        Unknown or unsupported colour codes fall back to mc_image.jpg.
+        """
+        code = (self.bike.color if self.bike else None) or ""
+        filename = code.lower()
+        if filename not in AVAILABLE_IMAGES:
+            filename = DEFAULT_IMAGE
         return f"{STATIC_PATH}/{filename}.jpg"
 
 
