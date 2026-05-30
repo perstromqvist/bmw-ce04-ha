@@ -21,7 +21,7 @@ class CE04Tracker(CE04Entity, TrackerEntity):
 
     @property
     def name(self) -> str:
-        if not self.bike:
+        if not self.bike or not self.bike.vin:
             return "CE04 Location"
         return f"CE04 {self.bike.vin[-6:]} Location"
 
