@@ -22,6 +22,27 @@ class CE04BinarySensorDescription(BinarySensorEntityDescription):
     value_fn: Callable[[CE04Data], bool | None]
 
 
+# How long after the last cloud check-in the scooter still counts as
+# "recently connected". The CE 04 phones home sporadically, so a tight
+# window flaps on/off — tune this to your bike's check-in cadence.
+RECENT_CONNECT_WINDOW = timedelta(hours=6)
+
+# chargingMode values that mean the scooter is actively drawing charge.
+# The only sample we have was idle/full (chargingMode = null), so this set
+# is a best guess until a real charging sample confirms the string BMW sends.
+CHARGING_MODES = {"CHARGING", "ACTIVE", "ON"}
+
+
+def _is_charging(bike: CE04Data) -> bool:
+    """True only when chargingMode clearly indicates active charging."""
+    mode = bike.raw.get("chargingMode")
+    if mode is True:
+        return True
+    if isinstance(mode, str) and mode.strip().upper() in CHARGING_MODES:
+        return True
+    return False
+
+
 BINARY_SENSORS: tuple[CE04BinarySensorDescription, ...] = (
     # ---------------------------------------------------------
     # Battery
@@ -97,7 +118,7 @@ BINARY_SENSORS: tuple[CE04BinarySensorDescription, ...] = (
         translation_key="charging",
         name="Charging",
         device_class=BinarySensorDeviceClass.BATTERY_CHARGING,
-        value_fn=lambda bike: bike.raw.get("chargingMode") in ("ON", "CHARGING", True),
+        value_fn=lambda bike: _is_charging(bike),
     ),
 
     # ---------------------------------------------------------
@@ -106,7 +127,7 @@ BINARY_SENSORS: tuple[CE04BinarySensorDescription, ...] = (
     CE04BinarySensorDescription(
         key="online",
         translation_key="online",
-        name="Online",
+        name="Recently connected",
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
         value_fn=lambda bike: _is_recently_connected(bike.last_connected_time),
     ),
@@ -114,10 +135,10 @@ BINARY_SENSORS: tuple[CE04BinarySensorDescription, ...] = (
 
 
 def _is_recently_connected(last_connected: datetime | None) -> bool:
-    """Return True if scooter was connected within the last 15 minutes."""
+    """Return True if the scooter checked in within RECENT_CONNECT_WINDOW."""
     if last_connected is None:
         return False
-    return datetime.now(timezone.utc) - last_connected < timedelta(minutes=15)
+    return datetime.now(timezone.utc) - last_connected < RECENT_CONNECT_WINDOW
 
 
 class CE04BinarySensor(CE04Entity, BinarySensorEntity):
