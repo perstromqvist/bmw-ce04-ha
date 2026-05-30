@@ -1,15 +1,13 @@
 {
   "domain": "bmw_ce04",
   "name": "BMW Motorrad CE 04",
-  "version": "1.4.1",
-  "config_flow": true,
-  "documentation": "https://github.com/perstromqvist/bmw-ce04-ha",
-  "issue_tracker": "https://github.com/perstromqvist/bmw-ce04-ha/issues",
   "codeowners": ["@perstromqvist"],
-  "iot_class": "cloud_polling",
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/perstromqvist/bmw-ce04-ha",
   "integration_type": "hub",
-  "diagnostics": true,
-  "homeassistant": "2025.4.0",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/perstromqvist/bmw-ce04-ha/issues",
   "requirements": [],
-  "dependencies": []
+  "version": "1.4.1"
 }
