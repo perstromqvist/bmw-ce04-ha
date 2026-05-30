@@ -60,16 +60,19 @@ class CE04Coordinator(DataUpdateCoordinator[dict[str, CE04Data]]):
 
             # Optional debug dump (only if file already exists)
             dump_path = os.path.join(self.hass.config.config_dir, "bmw_ce04_raw_debug.json")
-            if os.path.exists(dump_path):
-                def _dump():
-                    with open(dump_path, "w", encoding="utf-8") as f:
-                        json.dump(
-                            [dataclasses.asdict(bike) for bike in bikes],
-                            f,
-                            indent=4,
-                            default=str,
-                        )
-                await self.hass.async_add_executor_job(_dump)
+
+            def _dump_if_present() -> None:
+                if not os.path.exists(dump_path):
+                    return
+                with open(dump_path, "w", encoding="utf-8") as f:
+                    json.dump(
+                        [dataclasses.asdict(bike) for bike in bikes],
+                        f,
+                        indent=4,
+                        default=str,
+                    )
+
+            await self.hass.async_add_executor_job(_dump_if_present)
 
         except CE04AuthError as err:
             _LOGGER.warning("Authentication failed, triggering reauth: %s", err)
