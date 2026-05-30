@@ -71,7 +71,7 @@ async def _async_register_static_path(hass: HomeAssistant) -> None:
         return
 
     www_path = Path(__file__).parent / "www"
-    if www_path.is_dir():
+    if await hass.async_add_executor_job(www_path.is_dir):
         await hass.http.async_register_static_paths(
             [StaticPathConfig(STATIC_PATH, str(www_path), cache_headers=True)]
         )
@@ -102,14 +102,18 @@ async def _async_register_services(hass: HomeAssistant) -> None:
 
     async def handle_clear_debug(call: ServiceCall):
         dump_path = os.path.join(hass.config.config_dir, "bmw_ce04_raw_debug.json")
-        if os.path.exists(dump_path):
+
+        def _remove() -> bool:
+            if not os.path.exists(dump_path):
+                return True
             try:
                 os.remove(dump_path)
                 return True
             except Exception as err:
                 _LOGGER.error("Failed to delete debug dump: %s", err)
                 return False
-        return True
+
+        return await hass.async_add_executor_job(_remove)
 
     hass.services.async_register(DOMAIN, "force_update", handle_force_update)
     hass.services.async_register(
