@@ -3,13 +3,9 @@
     "step": {
       "user": {
         "title": "BMW CE 04 — Connect",
-        "description": "Enter your BMW CarData client ID and region settings.",
+        "description": "Enter your BMW CarData Client ID.",
         "data": {
-          "client_id": "BMW CarData Client ID",
-          "api_host": "Motorrad API host",
-          "auth_host": "BMW CarData auth host",
-          "poll_interval": "Poll interval (seconds)",
-          "verify_ssl": "Verify SSL"
+          "client_id": "BMW CarData Client ID"
         }
       },
       "authorize": {
@@ -27,26 +23,72 @@
   },
   "entity": {
     "sensor": {
-      "battery_level": { "name": "Battery Level" },
-      "remaining_range": { "name": "Remaining Range" },
-      "total_mileage": { "name": "Total Mileage" },
-      "trip1": { "name": "Trip 1" },
-      "trip2": { "name": "Trip 2" },
-      "tire_pressure_front": { "name": "Front Tire Pressure" },
-      "tire_pressure_rear": { "name": "Rear Tire Pressure" },
-      "vin": { "name": "VIN" },
-      "next_service_due_date": { "name": "Next Service Due Date" },
-      "next_service_remaining_distance": { "name": "Next Service Remaining Distance" },
-      "last_connected_time": { "name": "Last Connected" },
-      "last_activated_time": { "name": "Last Activated" },
-      "charging_time_estimation": { "name": "Charging Time Estimation" },
-      "battery_soh": { "name": "Battery Maximum Capacity" }
+      "battery_level": {
+        "name": "Battery Level"
+      },
+      "remaining_range": {
+        "name": "Remaining Range"
+      },
+      "total_mileage": {
+        "name": "Total Mileage"
+      },
+      "trip1": {
+        "name": "Trip 1"
+      },
+      "trip2": {
+        "name": "Trip 2"
+      },
+      "tire_pressure_front": {
+        "name": "Front Tire Pressure"
+      },
+      "tire_pressure_rear": {
+        "name": "Rear Tire Pressure"
+      },
+      "vin": {
+        "name": "VIN"
+      },
+      "next_service_due_date": {
+        "name": "Next Service Due Date"
+      },
+      "next_service_remaining_distance": {
+        "name": "Next Service Remaining Distance"
+      },
+      "last_connected_time": {
+        "name": "Last Connected"
+      },
+      "last_activated_time": {
+        "name": "Last Activated"
+      },
+      "charging_time_estimation": {
+        "name": "Charging Time Estimation"
+      },
+      "battery_soh": {
+        "name": "Battery Maximum Capacity"
+      }
     },
     "binary_sensor": {
-      "low_battery": { "name": "Low Battery" },
-      "front_tire_pressure_low": { "name": "Front Tire Pressure Low" },
-      "rear_tire_pressure_low": { "name": "Rear Tire Pressure Low" },
-      "service_due_soon": { "name": "Service Due Soon" }
+      "low_battery": {
+        "name": "Low Battery"
+      },
+      "front_tire_pressure_low": {
+        "name": "Front Tire Pressure Low"
+      },
+      "rear_tire_pressure_low": {
+        "name": "Rear Tire Pressure Low"
+      },
+      "service_due_soon": {
+        "name": "Service Due Soon"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "BMW CE 04 — Options",
+        "data": {
+          "poll_interval": "Poll interval (seconds)"
+        }
+      }
     }
   }
 }
