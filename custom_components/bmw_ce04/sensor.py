@@ -92,6 +92,7 @@ SENSORS: tuple[CE04SensorDescription, ...] = (
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         state_class=SensorStateClass.TOTAL,
         suggested_display_precision=0,
+        entity_registry_enabled_default=False,
         value_fn=lambda bike: bike.trip2_km,
     ),
     CE04SensorDescription(
