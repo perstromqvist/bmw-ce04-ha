@@ -72,39 +72,38 @@ class CE04ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            user_input = dict(user_input)
-            user_input[CONF_CLIENT_ID] = user_input[CONF_CLIENT_ID].strip().lower()
-
-            poll = user_input.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL)
-            if not (MIN_POLL_INTERVAL <= poll <= MAX_POLL_INTERVAL):
-                errors[CONF_POLL_INTERVAL] = "invalid_poll_interval"
+            # Only the Client ID is user-supplied. Hosts, SSL and poll interval
+            # use safe defaults so there is nothing here to misconfigure; the
+            # poll interval can be adjusted later under Options.
+            data = {
+                CONF_CLIENT_ID: user_input[CONF_CLIENT_ID].strip().lower(),
+                CONF_API_HOST: DEFAULT_API_HOST,
+                CONF_AUTH_HOST: DEFAULT_AUTH_HOST,
+                CONF_POLL_INTERVAL: DEFAULT_POLL_INTERVAL,
+                CONF_VERIFY_SSL: DEFAULT_VERIFY_SSL,
+            }
+            client = self._build_client(data)
+            try:
+                code = await client.async_request_device_code()
+            except CE04AuthError:
+                errors["base"] = "cannot_connect"
+            except Exception:
+                _LOGGER.exception("Unexpected error requesting device code")
+                errors["base"] = "cannot_connect"
             else:
-                client = self._build_client(user_input)
-                try:
-                    code = await client.async_request_device_code()
-                except CE04AuthError:
-                    errors["base"] = "cannot_connect"
-                except Exception:
-                    _LOGGER.exception("Unexpected error requesting device code")
-                    errors["base"] = "cannot_connect"
-                else:
-                    self._user_input = user_input
-                    self._device_code = code.device_code
-                    self._code_verifier = code.code_verifier
-                    self._verification_uri = code.verification_uri
-                    self._verification_uri_complete = code.verification_uri_complete or ""
-                    self._user_code = code.user_code
-                    return await self.async_step_authorize()
+                self._user_input = data
+                self._device_code = code.device_code
+                self._code_verifier = code.code_verifier
+                self._verification_uri = code.verification_uri
+                self._verification_uri_complete = code.verification_uri_complete or ""
+                self._user_code = code.user_code
+                return await self.async_step_authorize()
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_CLIENT_ID): cv.string,
-                    vol.Required(CONF_API_HOST, default=DEFAULT_API_HOST): cv.string,
-                    vol.Required(CONF_AUTH_HOST, default=DEFAULT_AUTH_HOST): cv.string,
-                    vol.Optional(CONF_POLL_INTERVAL, default=DEFAULT_POLL_INTERVAL): cv.positive_int,
-                    vol.Optional(CONF_VERIFY_SSL, default=DEFAULT_VERIFY_SSL): cv.boolean,
                 }
             ),
             errors=errors,
@@ -222,7 +221,10 @@ class CE04OptionsFlow(config_entries.OptionsFlow):
             step_id="init",
             data_schema=vol.Schema(
                 {
-                    vol.Optional(CONF_POLL_INTERVAL, default=current): cv.positive_int,
+                    vol.Optional(CONF_POLL_INTERVAL, default=current): vol.All(
+                        cv.positive_int,
+                        vol.Range(min=MIN_POLL_INTERVAL, max=MAX_POLL_INTERVAL),
+                    ),
                 }
             ),
         )
