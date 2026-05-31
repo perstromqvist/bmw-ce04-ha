@@ -3,13 +3,9 @@
     "step": {
       "user": {
         "title": "BMW CE 04 — Connect",
-        "description": "Enter your BMW CarData client ID and region settings.",
+        "description": "Enter your BMW CarData Client ID.",
         "data": {
-          "client_id": "BMW CarData Client ID",
-          "api_host": "Motorrad API host",
-          "auth_host": "BMW CarData auth host",
-          "poll_interval": "Poll interval (seconds)",
-          "verify_ssl": "Verify SSL"
+          "client_id": "BMW CarData Client ID"
         }
       },
       "authorize": {
@@ -23,6 +19,16 @@
     },
     "abort": {
       "already_configured": "BMW CE 04 is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "BMW CE 04 — Options",
+        "data": {
+          "poll_interval": "Poll interval (seconds)"
+        }
+      }
     }
   }
 }
