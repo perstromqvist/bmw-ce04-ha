@@ -89,9 +89,9 @@ Note: The name of the image refers to the color code of your bike. If no match i
   - Register at: https://bmw-cardata.bmwgroup.com/customer/public/api-documentation/Id-Technical-registration_Step-1  
 - A **BMW Motorrad account**
   - Register at: https://www.bmw-motorrad.com/en/home.html
-- The **BMW Motorrad Connected** app
-  - Download from https://apps.apple.com/us/app/bmw-motorrad-connected/id1250173746 or
-  - Download from https://play.google.com/store/apps/details?id=com.bmw.ConnectedRide
+- The **BMW Motorrad Connected** app. Download from:
+  - https://apps.apple.com/us/app/bmw-motorrad-connected/id1250173746 or
+  - https://play.google.com/store/apps/details?id=com.bmw.ConnectedRide
 
 ---
 
