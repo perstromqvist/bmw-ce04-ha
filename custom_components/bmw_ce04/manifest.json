@@ -9,5 +9,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/perstromqvist/bmw-ce04-ha/issues",
   "requirements": [],
-  "version": "1.4.5"
+  "version": "1.4.6"
 }
