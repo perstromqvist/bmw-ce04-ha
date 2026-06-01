@@ -235,6 +235,28 @@ class CE04VehicleImageSensor(CE04Entity, SensorEntity):
         return f"{STATIC_PATH}/{filename}.jpg"
 
 
+class CE04LastUpdateSensor(CE04Entity, SensorEntity):
+    """Timestamp of the integration's last successful poll.
+
+    Stays available (showing the last success time) even when a poll fails, so it
+    goes stale if the integration hangs — handy to alert on.
+    """
+
+    _attr_name = "Last update"
+    _attr_icon = "mdi:clock-check-outline"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(self, coordinator, bike_id: str) -> None:
+        super().__init__(coordinator, bike_id)
+        self._attr_unique_id = f"{self.bike_slug}_last_update"
+        self._attr_suggested_object_id = f"{self.bike_slug}_last_update"
+
+    @property
+    def native_value(self):
+        return self.coordinator.last_update_time
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -246,6 +268,7 @@ async def async_setup_entry(
     entities: list[SensorEntity] = []
     for bike_id in coordinator.data:
         entities.append(CE04VehicleImageSensor(coordinator, bike_id))
+        entities.append(CE04LastUpdateSensor(coordinator, bike_id))
         for description in SENSORS:
             entities.append(CE04Sensor(coordinator, bike_id, description))
 
