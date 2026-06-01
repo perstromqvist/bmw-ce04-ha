@@ -6,11 +6,12 @@ import logging
 import os
 import asyncio
 import aiohttp
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .api import CE04ApiClient, CE04ApiError, CE04AuthError
 from .const import CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL, DOMAIN
@@ -37,6 +38,8 @@ class CE04Coordinator(DataUpdateCoordinator[dict[str, CE04Data]]):
 
         self.entry = entry
         self.client = client
+        # Timestamp of the last successful poll (None until the first success).
+        self.last_update_time: datetime | None = None
 
         _LOGGER.debug("CE04Coordinator initialized with poll interval: %s seconds", poll_interval)
 
@@ -100,4 +103,5 @@ class CE04Coordinator(DataUpdateCoordinator[dict[str, CE04Data]]):
             except Exception as err:
                 _LOGGER.warning("Failed to store CE04 bike data: %s", err)
         
+        self.last_update_time = dt_util.utcnow()
         return result
