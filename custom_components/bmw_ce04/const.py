@@ -27,7 +27,7 @@ CONF_VERIFY_SSL = "verify_ssl"
 DEFAULT_API_HOST = "https://cpp.bmw-motorrad.com"
 DEFAULT_AUTH_HOST = "https://customer.bmwgroup.com"
 DEFAULT_COUNTRY = "en-EN"
-DEFAULT_POLL_INTERVAL = 300
+DEFAULT_POLL_INTERVAL = 1800  # 30 min ≈ 48 calls/day, under BMW's documented 50/24h quota
 DEFAULT_VERIFY_SSL = True
 
 MIN_POLL_INTERVAL = 60
