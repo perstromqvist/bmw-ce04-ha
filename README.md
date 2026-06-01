@@ -31,7 +31,7 @@ This integration is **read‑only** and does **not** send any remote commands to
 
 ## 🚀 Features
 
-This integration pulls live data from the BMW Motorrad cloud and exposes it as Home Assistant entities.
+This integration pulls the latest data from the BMW Motorrad cloud and exposes it as Home Assistant entities.
 
 ### 🔋 EV Battery & Charging
 - Battery level (%)
