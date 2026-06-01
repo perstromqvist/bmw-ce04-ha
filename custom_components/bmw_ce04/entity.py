@@ -51,5 +51,5 @@ class CE04Entity(CoordinatorEntity):
     # ---------------------------------------------------------
     @property
     def available(self) -> bool:
-        """Entity is available if coordinator has valid data."""
-        return self.bike is not None
+        """Available only when the last poll succeeded and this bike has data."""
+        return self.coordinator.last_update_success and self.bike is not None
