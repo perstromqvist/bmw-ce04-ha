@@ -10,7 +10,7 @@
       },
       "authorize": {
         "title": "BMW CE 04 — Authorize",
-        "description": "Open this URL in your browser and enter the code shown:\n\n**{verification_uri}**\n\nCode: `{user_code}`\n\nOr use the direct link: {verification_uri_complete}\n\nAfter approving, click Submit."
+        "description": "**Step 1** — Open this page in your browser:\n**{verification_uri}**\n\n**Step 2** — Sign in with your BMW account if prompted, then enter this code:\n`{user_code}`\n\n**Step 3** — Approve the request, return to Home Assistant, and click **Submit**.\n\nThe code is valid for only a few minutes. Shortcut: {verification_uri_complete} opens the page with the code already filled in."
       }
     },
     "error": {
