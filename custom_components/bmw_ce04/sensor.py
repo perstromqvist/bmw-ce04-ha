@@ -253,6 +253,12 @@ class CE04LastUpdateSensor(CE04Entity, SensorEntity):
         self._attr_suggested_object_id = f"{self.bike_slug}_last_update"
 
     @property
+    def available(self) -> bool:
+        # Unlike other entities, stay available when a poll fails so the (now
+        # stale) timestamp can still be read and alerted on.
+        return self.bike is not None
+
+    @property
     def native_value(self):
         return self.coordinator.last_update_time
 
