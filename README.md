@@ -64,11 +64,13 @@ This integration pulls live data from the BMW Motorrad cloud and exposes it as H
 ### 🎨 Dynamic Vehicle Image
 A dedicated image entity automatically displays the correct CE 04 image based on your scooter's color code:
 
-- Light White  
-- Imperial Blue  
-- Magellan Grey / Space Silver  
+- Light White
+- Imperial Blue
+- Magellan Grey / Space Silver
 
 Images are served from `/local/` and must be copied to your `config/www/` folder.
+
+Note: The name of the image refers to the color code of your bike. If no match is found, the **generic** image mc_image.jpg is served as a fallback.
 
 ### 🧩 Home Assistant Native Features
 - Full **Config Flow** setup (no YAML)
@@ -81,11 +83,15 @@ Images are served from `/local/` and must be copied to your `config/www/` folder
 
 ## 📦 Requirements
 
-- Home Assistant 2025.1.0 or newer
+- Home Assistant 2026.1.0 or newer
 - HACS installed
-- A **BMW CarData Client ID**  
+- A **BMW CarData Client ID**
   → Register at: https://bmw-cardata.bmwgroup.com/customer/public/api-documentation/Id-Technical-registration_Step-1  
-- A BMW Motorrad account with **ConnectedRide** enabled in the app
+- A **BMW Motorrad account**
+  → Register at: https://www.bmw-motorrad.com/en/home.html
+- The **BMW Motorrad Connected** app
+  → Download from https://apps.apple.com/us/app/bmw-motorrad-connected/id1250173746 or
+  → Download from https://play.google.com/store/apps/details?id=com.bmw.ConnectedRide
 
 ---
 
@@ -98,7 +104,7 @@ Images are served from `/local/` and must be copied to your `config/www/` folder
 5. Open **BMW Motorrad CE 04** in HACS and click **Download**
 6. **Restart Home Assistant**
 7. Go to **Settings → Devices & Services → Add Integration**
-8. Search for **BMW CE 04**
+8. Search for **BMW Motorrad CE 04**
 
 ---
 
