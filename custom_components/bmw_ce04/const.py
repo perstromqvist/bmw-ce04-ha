@@ -30,7 +30,7 @@ DEFAULT_COUNTRY = "en-EN"
 DEFAULT_POLL_INTERVAL = 1800  # 30 min ≈ 48 calls/day, under BMW's documented 50/24h quota
 DEFAULT_VERIFY_SSL = True
 
-MIN_POLL_INTERVAL = 60
+MIN_POLL_INTERVAL = 600
 MAX_POLL_INTERVAL = 3600
 
 # ---------------------------------------------------------------------------
