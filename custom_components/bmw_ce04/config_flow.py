@@ -152,7 +152,11 @@ class CE04ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
             description_placeholders={
                 "verification_uri": self._verification_uri or "",
-                "verification_uri_complete": self._verification_uri_complete or "",
+                "verification_uri_complete": (
+                    self._verification_uri_complete
+                    or self._verification_uri
+                    or ""
+                ),
                 "user_code": self._user_code or "",
             },
         )
