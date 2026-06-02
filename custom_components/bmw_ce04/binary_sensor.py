@@ -27,10 +27,12 @@ class CE04BinarySensorDescription(BinarySensorEntityDescription):
 # window flaps on/off — tune this to your bike's check-in cadence.
 RECENT_CONNECT_WINDOW = timedelta(hours=6)
 
-# chargingMode values that mean the scooter is actively drawing charge.
-# The only sample we have was idle/full (chargingMode = null), so this set
-# is a best guess until a real charging sample confirms the string BMW sends.
-CHARGING_MODES = {"CHARGING", "ACTIVE", "ON"}
+# chargingMode values that mean the scooter is actively charging. Per BMW's
+# CloudSync data dictionary the only documented value is "ChargingMode_DcHvCharging"
+# (DC high-voltage charging). The CE 04 AC-charges, so this field is usually null
+# for it — power-based detection is more reliable there — but this keeps the
+# sensor correct for any model/charge type that does report it.
+CHARGING_MODES = {"CHARGINGMODE_DCHVCHARGING"}
 
 
 def _is_charging(bike: CE04Data) -> bool:
