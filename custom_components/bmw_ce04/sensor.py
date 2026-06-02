@@ -29,8 +29,10 @@ from .models import CE04Data
 DEFAULT_IMAGE = "mc_image"
 
 # Colour codes (lowercased) we ship a matching <code>.jpg for in www/.
-# Add a new code here when you add its image file.
-AVAILABLE_IMAGES = {"p0nb5", "p0n3h", "p0n2m"}
+# Decal variants carry a suffix (e.g. "p0nb5-ei00257p"); entity_picture tries
+# the full code first, then the base colour before the dash. Add a code here
+# when you add its image file.
+AVAILABLE_IMAGES = {"p0nb5", "p0n2t", "p0n3l", "p0nb5-ei00257p"}
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -226,11 +228,17 @@ class CE04VehicleImageSensor(CE04Entity, SensorEntity):
     def entity_picture(self) -> str:
         """URL to the vehicle image for the bike's colour.
 
-        Unknown or unsupported colour codes fall back to mc_image.jpg.
+        Tries the full colour code first (e.g. a decal variant like
+        "p0nb5-ei00257p"), then the base colour before the dash, and finally
+        mc_image.jpg for anything unknown.
         """
-        code = (self.bike.color if self.bike else None) or ""
-        filename = code.lower()
-        if filename not in AVAILABLE_IMAGES:
+        code = ((self.bike.color if self.bike else None) or "").lower()
+        base = code.split("-", 1)[0]
+        if code in AVAILABLE_IMAGES:
+            filename = code
+        elif base in AVAILABLE_IMAGES:
+            filename = base
+        else:
             filename = DEFAULT_IMAGE
         return f"{STATIC_PATH}/{filename}.jpg"
 
