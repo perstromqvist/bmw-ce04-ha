@@ -97,6 +97,12 @@ Note: The name of the image refers to the color code of your bike. If no match i
 
 ## 🛠️ Installation via HACS
 
+**One click** — open HACS with this repository pre-filled:
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=perstromqvist&repository=bmw-ce04-ha&category=integration)
+
+Then click **Download** and restart Home Assistant. Or add it manually:
+
 1. Go to **HACS → Integrations**
 2. Click the three dots → **Custom repositories**
 3. Add this repository URL  
