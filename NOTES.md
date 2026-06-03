@@ -93,6 +93,57 @@ matches the full code first, then the base colour before the dash.
 Both are rich but only present in the data export. They would only become usable
 if BMW exposes corresponding API endpoints (not currently used here).
 
+## CarData telematics model (streaming API — a different channel)
+
+There are **two** BMW data channels, and they use different schemas:
+
+1. **ConnectedRide CloudSync (`CloudBike`)** — phone-synced, flat camelCase fields.
+   This is what the integration polls (`cpp.bmw-motorrad.com`) and what `raw`
+   contains. Available for SIM-less bikes like the CE 04.
+2. **CarData telematics** — `vehicle.*` dotted descriptors, **streamed by the
+   vehicle over its built-in SIM/modem** to BMW and exposed via the CarData API.
+   Documented in BMW's "Customer Telematics Data Catalogue". The CE 04 has **no
+   SIM**, so it does not produce this — which is why the CarData portal shows a
+   reduced menu for it. The first catalogue field is literally `vehicle.sim.status`.
+
+The integration uses CarData only for **OAuth/identity**; the data comes from
+CloudBike. The richer telematics set below requires a modem-equipped bike and a
+different (CarData REST/streaming) data path.
+
+### CloudBike (`raw`) → CarData telematics descriptor
+
+| `raw` field | CarData descriptor |
+|---|---|
+| `totalMileage` | `vehicle.vehicle.travelledDistance` |
+| `energyLevel` | `vehicle.powertrain.electric.battery.stateOfCharge.displayed` (0–100 %) |
+| `remainingRange` / `remainingRangeElectric` | `vehicle.drivetrain.electricEngine.remainingElectricRange` (0–1000 km) |
+| `chargingMode` | `vehicle.drivetrain.electricEngine.charging.status` |
+| `chargingTimeEstimationElectric` | `vehicle.drivetrain.electricEngine.charging.remainingTimeSme` (0–65534 min) |
+| `tirePressureFront` / `tirePressureRear` | `vehicle.chassis.axle.row1`/`row2`.`wheel.center.tire.pressure` (**kPa** here, not bar) |
+| `trip1` / `trip2` | `vehicle.tripMeterReading1` / `2` |
+| `nextServiceDueDate` | `vehicle.status.conditionBasedServices`, `vehicle.status.lastService.timestamp`/`mileage` |
+| `color` / decals | likely `vehicle.extras.optionalEquipment.code` |
+| `vin` | `vehicle.vehicleIdentification.basicVehicleData` |
+| `lastConnectedLat`/`Lon` | `vehicle.cabin.infotainment.navigation.currentLocation.latitude`/`longitude` (telematics is **live**; CloudBike is last-disconnect) |
+
+### In the telematics catalogue but NOT in CloudBike `raw`
+
+- **12 V low-voltage battery SOC** (`vehicle.electricalSystem.battery.stateOfCharge`) and battery guard (`…batteryManagement.statusBatteryGuard`: `NO_WARNING`/`WARNING`/`ALARM`).
+- Ignition + engine state (`…engine.isIgnitionOn` / `isActive`).
+- **Live GPS with heading and altitude** (`…currentLocation.heading`/`altitude`).
+- Average consumption, check-control messages, detailed Condition Based Services, trip *duration*, per-tyre low-pressure flags (`…tire.pressureLow`).
+- **`vehicle.look.image`** — a BMW-provided vehicle image (could replace the manual colour→image mapping).
+- SIM status, ConnectedDrive contract list, preferred service partner.
+
+### Note for the neutralization
+
+The CE 04 will never produce telematics (no SIM), so for it CloudBike stays the
+only source. But for **modem-equipped** models the CarData API is a richer and
+more official source. Worth an experiment: hit the documented CarData API with an
+existing token to see whether any `vehicle.*` values come back for the CE 04
+(BMW may serve last-known phone-synced values under that schema even without a
+SIM). If empty, the SIM gating is confirmed.
+
 ## Neutralization checklist (future, v2.0.0)
 
 - Domain `bmw_ce04` → `bmw_motorrad` (breaking — requires re-add).
@@ -102,3 +153,5 @@ if BMW exposes corresponding API endpoints (not currently used here).
   empty sensors on other models.
 - Confirm field shape on a non-CE-04 model via `export_raw_data` before relying
   on any of the above for other bikes.
+- For modem-equipped models, consider the CarData telematics API (`vehicle.*`)
+  as a richer alternative/supplement to CloudBike (see section above).
