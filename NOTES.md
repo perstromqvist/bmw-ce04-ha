@@ -135,14 +135,23 @@ different (CarData REST/streaming) data path.
 - **`vehicle.look.image`** — a BMW-provided vehicle image (could replace the manual colour→image mapping).
 - SIM status, ConnectedDrive contract list, preferred service partner.
 
-### Note for the neutralization
+### CarData probe result (confirmed, 2026-06)
 
-The CE 04 will never produce telematics (no SIM), so for it CloudBike stays the
-only source. But for **modem-equipped** models the CarData API is a richer and
-more official source. Worth an experiment: hit the documented CarData API with an
-existing token to see whether any `vehicle.*` values come back for the CE 04
-(BMW may serve last-known phone-synced values under that schema even without a
-SIM). If empty, the SIM gating is confirmed.
+Tested the CarData REST API with a valid token (scope `cardata:api:read`):
+
+- `GET /customers/vehicles/mappings` → **200**, but lists only the **car** (an
+  i3, `WBY…` VIN). The CE 04 is **not present** — it is not a CarData vehicle.
+- `GET /customers/vehicles/{ce04_vin}/basicData` → **403 CU-104** ("no permission
+  / not telematics-capable / not mapped").
+- `telematicData` needs a container id (got CU-400); `image` needs `Accept:
+  image/png` — both moot since the VIN is gated anyway.
+
+**Conclusion:** CarData is **car-only** here. The CE 04 lives solely in the
+Motorrad ConnectedRide / CloudSync world (`cpp.bmw-motorrad.com`). CloudBike is
+the only data source for it, and `vehicle.look.image` is unavailable — so the
+manual colour→image mapping is the correct solution, not a stopgap. For
+**modem-equipped** models the CarData API may still be a richer source, but that
+is a separate (car-style) integration path.
 
 ## Neutralization checklist (future, v2.0.0)
 
