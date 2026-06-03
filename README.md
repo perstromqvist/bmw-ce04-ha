@@ -127,6 +127,8 @@ During setup you will:
 
 If your token expires, Home Assistant will automatically trigger **Reauthentication**.
 
+> **Setup not working?** To check whether the problem is your Client ID / BMW account or Home Assistant, run the standalone [`tools/check_auth.py`](tools/check_auth.py) script. It does the same device-code login and bike fetch *outside* Home Assistant — if it lists your bike, your Client ID works and the issue is on the HA side; if it fails there, it's on the BMW side (Client ID, API subscription, or vehicle mapping).
+
 ---
 
 ## 🧪 Debugging (optional)
