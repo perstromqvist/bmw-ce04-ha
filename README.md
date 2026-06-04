@@ -127,7 +127,7 @@ During setup you will:
 
 If your token expires, Home Assistant will automatically trigger **Reauthentication**.
 
-> **Setup not working?** To check whether the problem is your Client ID / BMW account or Home Assistant, run the standalone [`tools/check_auth.py`](tools/check_auth.py) script. It does the same device-code login and bike fetch *outside* Home Assistant — if it lists your bike, your Client ID works and the issue is on the HA side; if it fails there, it's on the BMW side (Client ID, API subscription, or vehicle mapping).
+> **Setup not working?** To check whether the problem is your Client ID / BMW account or Home Assistant, run the standalone [`check_auth.py`](custom_components/bmw_ce04/tools/check_auth.py) script (it's also already in your install at `config/custom_components/bmw_ce04/tools/`). It does the same device-code login and bike fetch *outside* Home Assistant — if it lists your bike, your Client ID works and the issue is on the HA side; if it fails there, it's on the BMW side (Client ID, API subscription, or vehicle mapping).
 
 ---
 
@@ -186,7 +186,7 @@ The report includes configuration (with the token and client ID redacted), a rea
 
 Support for more BMW Motorrad models depends on seeing real data from them. If you'd like to help — **no Home Assistant or HACS required** — you can run a small standalone script that fetches and saves your bike's raw data:
 
-1. Download [`tools/dump_raw.py`](tools/dump_raw.py).
+1. Download [`dump_raw.py`](custom_components/bmw_ce04/tools/dump_raw.py).
 2. Add your CarData Client ID at the top.
 3. Run `python3 dump_raw.py` (Python 3.8+; on HA OS, run `apk add python3` first).
 4. Log in via the printed URL and approve.
