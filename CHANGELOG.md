@@ -7,7 +7,7 @@ project aims to follow [Semantic Versioning](https://semver.org/).
 
 <!-- Dates are approximate — adjust to your actual release dates. -->
 
-## [Unreleased]
+## [1.5.4] - 2026-06-04
 
 ### Added
 - `tools/dump_raw.py` and a "Contributing data" guide for sharing a (masked) raw dump without Home Assistant.
