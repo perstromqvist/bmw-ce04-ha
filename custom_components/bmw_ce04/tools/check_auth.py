@@ -16,10 +16,23 @@ problem is on the BMW side (Client ID, API subscription, or vehicle mapping).
 
 Stdlib only — needs just Python 3.8+. On HA OS, run `apk add python3` first.
 
-USAGE
-  1. Put your Client ID below.
-  2. python3 check_auth.py
-  3. Open the printed URL, log in, approve.
+GETTING PYTHON (if you don't already have it)
+  - Windows: install from https://www.python.org/downloads/ and TICK
+             "Add python.exe to PATH" in the installer. Then use `python`.
+  - macOS:   open Terminal and type `python3` once; if it's missing, macOS
+             offers to install it. (Or install from python.org.)
+  - HA OS:   in the Terminal add-on, run `apk add python3` first.
+
+RUNNING IT
+  1. Save this file, then put your CarData Client ID in the line below.
+  2. Open a terminal IN THE FOLDER where you saved this file:
+       Windows: Shift + right-click the folder -> "Open PowerShell window here"
+       macOS:   right-click the folder in Finder -> "New Terminal at Folder"
+                (or: type `cd `, drag the folder into Terminal, press Enter)
+  3. Run it:
+       Windows: python check_auth.py
+       macOS:   python3 check_auth.py
+  4. Open the printed URL, log in with your BMW ID, approve.
 
 PRIVACY  The output includes your VIN and last-parked GPS coordinates. Do not
 paste it publicly without removing those.
