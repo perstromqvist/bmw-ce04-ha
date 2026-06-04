@@ -83,7 +83,7 @@ project aims to follow [Semantic Versioning](https://semver.org/).
 Initial development releases — see the Git commit history for details.
 
 <!-- Link references — adjust if your tags are named differently. -->
-[Unreleased]: https://github.com/perstromqvist/bmw-ce04-ha/compare/v1.5.3...HEAD
+[1.5.4]: https://github.com/perstromqvist/bmw-ce04-ha/compare/v1.5.3...v1.5.4
 [1.5.3]: https://github.com/perstromqvist/bmw-ce04-ha/compare/v1.5.2...v1.5.3
 [1.5.2]: https://github.com/perstromqvist/bmw-ce04-ha/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/perstromqvist/bmw-ce04-ha/compare/v1.5.0...v1.5.1
