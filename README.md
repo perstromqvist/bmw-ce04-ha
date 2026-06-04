@@ -81,6 +81,14 @@ Note: The name of the image refers to the color code of your bike. If no match i
 
 ---
 
+## ℹ️ How it works
+
+The CE 04 has no built-in modem. It syncs to BMW's cloud through the **BMW Motorrad Connected** app on your phone (over Bluetooth), and this integration reads that cloud data via BMW's API.
+
+This means the data is **not real-time** — it's only as fresh as your last phone sync, plus the poll interval. Battery level, location and odometer can lag a ride or a charge until your phone next syncs with the bike. That's a property of how BMW delivers the data, not a limitation of the integration.
+
+---
+
 ## 📦 Requirements
 
 - Home Assistant 2026.1.0 or newer
