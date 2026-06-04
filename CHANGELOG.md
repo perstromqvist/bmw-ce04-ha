@@ -11,6 +11,7 @@ project aims to follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 - `tools/dump_raw.py` and a "Contributing data" guide for sharing a (masked) raw dump without Home Assistant.
+- `tools/check_auth.py` and `tools/dump_raw.py` now include Windows/macOS run instructions.
 
 ### Fixed
 - README: corrected the vehicle-image setup note, the `force_update` parameters, and the diagnostics description.
