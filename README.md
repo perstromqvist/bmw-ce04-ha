@@ -68,7 +68,7 @@ A dedicated image entity automatically displays the correct CE 04 image based on
 - Imperial Blue
 - Magellan Grey / Space Silver
 
-Images are served from `/local/` and must be copied to your `config/www/` folder.
+Images ship with the integration and are served automatically — there is **nothing to copy** into `config/www/`.
 
 Note: The name of the image refers to the color code of your bike. If no match is found, the **generic** image mc_image.jpg is served as a fallback.
 
@@ -160,11 +160,7 @@ You can also use the built-in service to delete it from the HA UI:
 The integration registers the following services under the `bmw_ce04` domain:
 
 ### `bmw_ce04.force_update`
-Forces an immediate data refresh from the BMW cloud, bypassing the normal poll interval.
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `bike_id` | string | No | If provided, returns data for that specific bike only |
+Forces an immediate data refresh from the BMW cloud, bypassing the normal poll interval. Refreshes all bikes.
 
 ### `bmw_ce04.export_raw_data`
 Returns the raw `CE04Data` payload currently held by the coordinator. Useful for inspecting what the API returns without enabling file dumping.
@@ -182,7 +178,20 @@ Deletes the `bmw_ce04_raw_debug.json` trigger file if it exists, effectively dis
 
 Navigate to **Settings → Devices & Services → BMW Motorrad CE 04 → Download diagnostics** to export an anonymized diagnostic report.
 
-The report includes configuration (with tokens redacted), entity state, and bike metadata. GPS coordinates are not included — only whether location data is present.
+The report includes configuration (with the token and client ID redacted), a readable summary, and the **complete raw API payload**. Sensitive fields — VIN, vehicle/account IDs and GPS coordinates — are redacted, so the report is safe to share.
+
+---
+
+## 🤝 Contributing data
+
+Support for more BMW Motorrad models depends on seeing real data from them. If you'd like to help — **no Home Assistant or HACS required** — you can run a small standalone script that fetches and saves your bike's raw data:
+
+1. Download [`tools/dump_raw.py`](tools/dump_raw.py).
+2. Add your CarData Client ID at the top.
+3. Run `python3 dump_raw.py` (Python 3.8+; on HA OS, run `apk add python3` first).
+4. Log in via the printed URL and approve.
+
+The output is **masked by default** — VIN, ID hashes, GPS and the bike name are redacted, so it's safe to share — and is saved to `bmw_motorrad_dump.json`. Please mention your **model** and **market/region** when sharing it, since available fields and units vary by both.
 
 ---
 
