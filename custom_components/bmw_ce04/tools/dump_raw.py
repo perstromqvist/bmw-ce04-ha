@@ -15,12 +15,25 @@ not share it).
 
 Stdlib only — needs just Python 3.8+. On HA OS, run `apk add python3` first.
 
-USAGE
-  1. Put your CarData Client ID below.
-  2. python3 dump_raw.py            # masked (safe to share)
-     python3 dump_raw.py --full     # unmasked (keep private)
-  3. Open the printed URL, log in, approve.
-  4. Share the saved file — AND mention your model and market/region.
+GETTING PYTHON (if you don't already have it)
+  - Windows: install from https://www.python.org/downloads/ and TICK
+             "Add python.exe to PATH" in the installer. Then use `python`.
+  - macOS:   open Terminal and type `python3` once; if it's missing, macOS
+             offers to install it. (Or install from python.org.)
+  - HA OS:   in the Terminal add-on, run `apk add python3` first.
+
+RUNNING IT
+  1. Save this file, then put your CarData Client ID in the line below.
+  2. Open a terminal IN THE FOLDER where you saved this file:
+       Windows: Shift + right-click the folder -> "Open PowerShell window here"
+       macOS:   right-click the folder in Finder -> "New Terminal at Folder"
+                (or: type `cd `, drag the folder into Terminal, press Enter)
+  3. Run it:
+       Windows: python dump_raw.py            (add  --full  for an unmasked dump)
+       macOS:   python3 dump_raw.py           (add  --full  for an unmasked dump)
+  4. Open the printed URL, log in with your BMW ID, approve.
+  5. Share the saved bmw_motorrad_dump.json — AND mention your model and
+     market/region.
 """
 
 import base64
