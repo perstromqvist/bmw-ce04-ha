@@ -153,6 +153,29 @@ manual colour→image mapping is the correct solution, not a stopgap. For
 **modem-equipped** models the CarData API may still be a richer source, but that
 is a separate (car-style) integration path.
 
+### Client ID creation — motorcycle-only owners (confirmed, 2026-06)
+
+Creating a CarData Client ID requires a CarData-capable vehicle on the account.
+Two owner reports (mine + a Belgian CE 04 owner) showed the Motorrad portal's
+CarData tab offers only the GDPR data download, not client creation, for a
+motorcycle-only account. **BMW Motorrad support then confirmed**: for the CE 04,
+based on the type/model of the telematics module installed on the bike,
+displaying the Client ID is not possible. So this is a telematics-module
+(hardware) limit — not a mapping or second-owner issue.
+
+Consequence: a CE 04 owner with no other BMW cannot create a Client ID and
+therefore cannot use this integration. They need another CarData-capable BMW
+(typically a car) on the same account. Other Motorrad models may have different
+telematics modules and could behave differently — unconfirmed.
+
+This also closes the client_id investigation. App-traffic sniffing surfaced only
+device/installation IDs (push `clientId`, `X-Client-ID`) and an API-gateway key
+(`x-cd-apigw-key`) — none are OAuth client IDs. The web portal's OAuth client
+(`b1dd73b8…`, `authorization_code` flow) is **not** device-code-enabled
+("invalid client"). Even a recovered app client_id would hit the same
+telematics-module gate. Dead end, by design — pursue model-neutral support
+instead.
+
 ## Neutralization checklist (future, v2.0.0)
 
 - Domain `bmw_ce04` → `bmw_motorrad` (breaking — requires re-add).
