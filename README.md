@@ -101,6 +101,9 @@ This means the data is **not real-time** — it's only as fresh as your last pho
   - https://apps.apple.com/us/app/bmw-motorrad-connected/id1250173746 or
   - https://play.google.com/store/apps/details?id=com.bmw.ConnectedRide
 
+> [!IMPORTANT]
+> **Can you get a Client ID?** Creating a BMW CarData Client ID requires a **CarData-capable vehicle on your BMW account**. Some motorcycles cannot generate one on their own: BMW support has confirmed that the **CE 04**, because of its telematics module, cannot display a Client ID. If your only BMW is such a motorcycle, you will need **another CarData-capable BMW (typically a car) on the same account** to create the Client ID. Other Motorrad models may use different telematics modules and could behave differently — reports welcome.
+
 ---
 
 ## 🛠️ Installation via HACS
