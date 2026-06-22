@@ -8,7 +8,7 @@ Home Assistant, that your CarData Client ID and BMW account actually work.
 
 It mirrors exactly what the integration does:
   1. OAuth 2.0 Device Code Flow against customer.bmwgroup.com
-  2. one GET against cpp.bmw-motorrad.com for your bikes
+  2. one GET against api.connectedride.bmwgroup.com for your bikes
 
 If this prints your bike(s), your Client ID and account are fine — any remaining
 problem is on the Home Assistant / integration side. If it fails here, the
@@ -54,10 +54,21 @@ COUNTRY = "en-EN"   # same default the integration uses
 
 # These match the integration's const.py exactly.
 AUTH_HOST = "https://customer.bmwgroup.com"
-API_HOST = "https://cpp.bmw-motorrad.com"
+API_HOST = "https://api.connectedride.bmwgroup.com"
 DEVICE_CODE_ENDPOINT = "/gcdm/oauth/device/code"
 TOKEN_ENDPOINT = "/gcdm/oauth/token"
-BIKES_ENDPOINT_TMPL = "/v2/service/{country}/bmc-user-bikes"
+# BMW moved bike data to the ConnectedRide CloudSync API (no country segment).
+BIKES_ENDPOINT = "/cnrd/cloudsync/v2/bikes?limit=200"
+
+# Headers that make the request look like the BMW Motorrad Connected app.
+APP_HEADERS = {
+    "User-Agent": "Connected/51000002 CFNetwork/3860.600.12 Darwin/25.5.0",
+    "X-Client-Version": "5.10.0 (51000002)",
+    "X-Client-Build": "51000002",
+    "X-Device-Type": "ios",
+    "X-Device-OS-Version": "26.5.0",
+    "Accept-Language": "en-US,en;q=0.9",
+}
 
 
 def _pkce():
@@ -89,9 +100,10 @@ def _post(url, *, json_body=None, form=None):
 
 
 def _get(url, token):
-    req = urllib.request.Request(url, method="GET", headers={
-        "Authorization": f"Bearer {token}", "Accept": "application/json",
-    })
+    headers = {"Authorization": f"Bearer {token}", "Accept": "application/json",
+               "Content-Type": "application/json"}
+    headers.update(APP_HEADERS)
+    req = urllib.request.Request(url, method="GET", headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
             return r.status, r.read().decode()
@@ -154,14 +166,14 @@ def main():
         return
 
     print("\n=== [3/3] Fetching bikes ===")
-    url = f"{API_HOST}{BIKES_ENDPOINT_TMPL.format(country=COUNTRY)}"
+    url = f"{API_HOST}{BIKES_ENDPOINT}"
     print(url)
     status, body = _get(url, token)
     print(f"-> HTTP {status}")
     if status >= 400:
         print("   " + body[:600])
-        print("\n!! Auth worked but the bikes endpoint refused. Check your "
-              "country/region and that the bike is on this BMW account.")
+        print("\n!! Auth worked but the bikes endpoint refused. The app headers "
+              "may need updating, or the bike isn't on this BMW account.")
         return
 
     try:
