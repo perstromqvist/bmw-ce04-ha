@@ -11,7 +11,17 @@ from typing import Any
 
 import aiohttp
 
-from .const import BIKES_ENDPOINT_TMPL, DEVICE_CODE_ENDPOINT, TOKEN_ENDPOINT
+from .const import (
+    APP_ACCEPT_LANGUAGE,
+    APP_CLIENT_BUILD,
+    APP_CLIENT_VERSION,
+    APP_DEVICE_OS_VERSION,
+    APP_DEVICE_TYPE,
+    APP_USER_AGENT,
+    BIKES_ENDPOINT_TMPL,
+    DEVICE_CODE_ENDPOINT,
+    TOKEN_ENDPOINT,
+)
 from .models import CE04Data
 
 _LOGGER = logging.getLogger(__name__)
@@ -258,6 +268,13 @@ class CE04ApiClient:
         headers = {
             "Authorization": f"Bearer {self._token.access_token}",
             "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": APP_USER_AGENT,
+            "X-Client-Version": APP_CLIENT_VERSION,
+            "X-Client-Build": APP_CLIENT_BUILD,
+            "X-Device-Type": APP_DEVICE_TYPE,
+            "X-Device-OS-Version": APP_DEVICE_OS_VERSION,
+            "Accept-Language": APP_ACCEPT_LANGUAGE,
         }
 
         _LOGGER.debug("CE04 bikes request url=%s", url)
