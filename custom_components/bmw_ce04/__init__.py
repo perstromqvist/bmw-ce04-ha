@@ -17,6 +17,8 @@ from .const import (
     CONF_CLIENT_ID,
     CONF_COUNTRY,
     CONF_VERIFY_SSL,
+    DEFAULT_API_HOST,
+    DEFAULT_AUTH_HOST,
     DEFAULT_COUNTRY,
     DOMAIN,
     PLATFORMS,
@@ -42,11 +44,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     session = async_get_clientsession(hass)
 
+    # Migrate existing entries: BMW moved the bike data off cpp.bmw-motorrad.com
+    # to the ConnectedRide CloudSync API. Older config entries still have the old
+    # host stored, so update them in place (no re-add needed).
+    api_host = entry.data.get(CONF_API_HOST, DEFAULT_API_HOST)
+    if not api_host or "cpp.bmw-motorrad.com" in api_host:
+        api_host = DEFAULT_API_HOST
+        hass.config_entries.async_update_entry(
+            entry, data={**entry.data, CONF_API_HOST: DEFAULT_API_HOST}
+        )
+        _LOGGER.info("Migrated API host to %s", DEFAULT_API_HOST)
+
     client = CE04ApiClient(
         session,
         client_id=entry.data[CONF_CLIENT_ID],
-        api_host=entry.data[CONF_API_HOST],
-        auth_host=entry.data[CONF_AUTH_HOST],
+        api_host=api_host,
+        auth_host=entry.data.get(CONF_AUTH_HOST, DEFAULT_AUTH_HOST),
         country=entry.data.get(CONF_COUNTRY, DEFAULT_COUNTRY),
         verify_ssl=entry.data.get(CONF_VERIFY_SSL, True),
     )
