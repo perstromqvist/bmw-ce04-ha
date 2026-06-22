@@ -7,6 +7,11 @@ project aims to follow [Semantic Versioning](https://semver.org/).
 
 <!-- Dates are approximate — adjust to your actual release dates. -->
 
+## [1.5.5]
+
+### Fixed
+- BMW moved the bike data to a new endpoint (ConnectedRide CloudSync); the old host now returns 403. Updated host/path, added the app's request headers, and auto-migrate existing installs to the new endpoint.
+
 ## [1.5.4] - 2026-06-04
 
 ### Added
