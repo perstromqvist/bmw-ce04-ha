@@ -14,8 +14,14 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from homeassistant.util import dt as dt_util
 
 from .api import CE04ApiClient, CE04ApiError, CE04AuthError
-from .const import CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL, DOMAIN
-from .models import CE04Data
+from .const import (
+    CONF_POLL_INTERVAL,
+    CONF_TRACKS_POLL_INTERVAL,
+    DEFAULT_POLL_INTERVAL,
+    DEFAULT_TRACKS_POLL_INTERVAL,
+    DOMAIN,
+)
+from .models import CE04Data, RecordedTrack
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -105,3 +111,40 @@ class CE04Coordinator(DataUpdateCoordinator[dict[str, CE04Data]]):
         
         self.last_update_time = dt_util.utcnow()
         return result
+
+
+class CE04TracksCoordinator(DataUpdateCoordinator[list[RecordedTrack]]):
+    """Coordinator for recorded rides — polls on its own, slower schedule."""
+
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, client: CE04ApiClient) -> None:
+        poll_interval = (
+            entry.options.get(CONF_TRACKS_POLL_INTERVAL)
+            or entry.data.get(CONF_TRACKS_POLL_INTERVAL, DEFAULT_TRACKS_POLL_INTERVAL)
+        )
+
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=f"{DOMAIN}_tracks_coordinator",
+            update_interval=timedelta(seconds=poll_interval),
+        )
+
+        self.entry = entry
+        self.client = client
+        _LOGGER.debug("CE04TracksCoordinator initialized with poll interval: %s seconds", poll_interval)
+
+    async def _async_update_data(self) -> list[RecordedTrack]:
+        """Fetch the recorded rides."""
+        try:
+            await self.client.async_ensure_token()
+            return await self.client.async_get_recorded_tracks()
+        except CE04AuthError as err:
+            # The bikes coordinator owns reauth; here we just fail this poll.
+            raise UpdateFailed(f"Authentication failed: {err}") from err
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            raise UpdateFailed(f"Network error: {err}") from err
+        except CE04ApiError as err:
+            raise UpdateFailed(str(err)) from err
+        except Exception as err:
+            _LOGGER.exception("Unexpected error updating recorded tracks: %s", err)
+            raise UpdateFailed(f"Unexpected error: {err}") from err
