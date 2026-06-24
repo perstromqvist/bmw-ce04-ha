@@ -115,19 +115,56 @@ sensors on field presence rather than on a model list.
 
 ---
 
-## GPS track points (protobuf)
+## GPS track points (protobuf) — verified
 
 The actual GPS line for each ride lives in the gzipped protobuf files referenced
-by `trackSegments`, not in the JSON above. `cloudsync_protocolbuffers_meta.csv`
-documents that schema. Highlights:
+by `trackSegments` (`<uuid>.proto.gzip`), not in the JSON above.
+`cloudsync_protocolbuffers_meta.csv` documents the schema, and the format has been
+**confirmed by decoding a real exported segment**:
 
-- **`TrackPoint`** — `latitude`, `longitude`, `speed`, `elevation`,
-  `timestampInMillis`: the raw GPS line.
-- **`BikeVdsData`** — rich per-sample telemetry: real-time banking angle, gear,
-  throttle, brake pressures, engine/outside temperature, per-sample tyre
-  pressure, energy level/consumption, and more.
+- The file is gzip; decompressing yields a serialised `TrackSegment` message.
+- `TrackSegment` carries `vehicleId` (field 3), `longVin` (field 4, **plain VIN,
+  unmasked**) and `segmentType` (field 5: `0` = default street, `1` = offroad).
+- The sample data sits in **`extendedTrackPoints` (field 2)** — a repeated
+  `BikeVdsData`, **not** the simpler `trackPoints` (field 1), which was empty in
+  the sample. Expect roughly **one `BikeVdsData` sample per second** (e.g. ~1126
+  samples in a ~19-minute ride).
 
-Decoding these requires fetching the segment files and parsing protobuf against
-this schema — a separate effort, not currently part of the integration. The
-per-ride summary fields in `cloudsync_recorded_tracks` cover everything the
+### `BikeVdsData` — per-sample telemetry (field numbers verified)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 1 | `timestampInMillis` | int64 | sample time (ms) |
+| 2 | `positionMapMatchedLatitude` | float | map-matched GPS lat |
+| 3 | `positionMapMatchedLongitude` | float | map-matched GPS lon |
+| 4 | `positionMapMatchedElevation` | float | m |
+| 5 | `positionMapMatchedHeading` | float | degrees |
+| 8 | `positionMapMatchedSpeed` | float | km/h |
+| 9 / 10 | `positionRawLatitude` / `positionRawLongitude` | float | raw GPS |
+| 21 | `energyEnergyLevel` | float | battery %, per sample |
+| 22 | `energyRange` | int32 | remaining range |
+| 25 | `ridingEngineSpeed` | int32 | rpm |
+| 26 | `ridingGear` | int32 | gear |
+| 31 | `ridingVehicleSpeed` | float | km/h |
+| 35 | `sensorsBankingAngle` | float | **real-time lean angle**, degrees |
+| 36 / 37 | `sensorsBreakPressureFront` / `…Rear` | float | brake pressure |
+| 38 / 39 | `sensorsEngineTemperature` / `sensorsOutsideTemperature` | float | °C |
+| 40 / 41 | `sensorsTirePressureFront` / `…Rear` | float | per-sample tyre pressure |
+
+The full field list is in `cloudsync_protocolbuffers_meta.csv` (fields 1–41).
+A `BikeVdsData` sample therefore contains the GPS point **plus** live banking
+angle, gear, rpm, speed and battery — effectively a per-second "ride replay".
+
+### Status in this integration
+
+Decoding works, but this data is **not** consumed by the integration:
+
+- The live API only returns segment **file pointers** (name + size), not the
+  bytes. Downloading the segment files needs a separate endpoint (and likely the
+  `x-cd-apigw-key`), which this project deliberately avoids.
+- The bytes *are* available, key-free, in the **CarData export** — so the
+  practical use is offline: convert an exported `*.proto.gzip` to GPX/GeoJSON
+  with your own tooling. The verified field mapping above is enough to write that.
+
+The per-ride summary fields in `cloudsync_recorded_tracks` cover everything the
 integration exposes today.
