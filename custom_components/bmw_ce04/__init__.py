@@ -24,7 +24,7 @@ from .const import (
     PLATFORMS,
     STATIC_PATH,
 )
-from .coordinator import CE04Coordinator
+from .coordinator import CE04Coordinator, CE04TracksCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,6 +34,7 @@ class RuntimeData:
     """Runtime data for the integration."""
     client: CE04ApiClient
     coordinator: CE04Coordinator
+    tracks_coordinator: CE04TracksCoordinator
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -70,7 +71,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = CE04Coordinator(hass, entry, client)
     await coordinator.async_config_entry_first_refresh()
 
-    entry.runtime_data = RuntimeData(client=client, coordinator=coordinator)
+    # Recorded tracks are secondary: refresh without blocking setup, so a tracks
+    # hiccup never takes down the whole integration.
+    tracks_coordinator = CE04TracksCoordinator(hass, entry, client)
+    await tracks_coordinator.async_refresh()
+
+    entry.runtime_data = RuntimeData(
+        client=client,
+        coordinator=coordinator,
+        tracks_coordinator=tracks_coordinator,
+    )
 
     await _async_register_services(hass)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
