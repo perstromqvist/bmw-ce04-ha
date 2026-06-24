@@ -61,6 +61,13 @@ This integration pulls the latest data from the BMW Motorrad cloud and exposes i
 ### 📍 Location Tracking
 - Last known GPS location (device tracker)
 
+### 🏍️ Ride history
+Recorded rides from BMW CloudSync, polled on their own slower schedule:
+- **Last ride** — distance, with rich attributes: duration, average/max speed, max lean angle (left/right), max engine rpm, temperature and elevation range, max acceleration/deceleration, and start/end time and position.
+- **Ride stats** — total ride count, with attributes: rides this month, total distance, longest ride, top speed ever, and largest lean angle ever.
+
+Ride history polls separately from the live bike data (default every 3 h, configurable under **Configure**), since rides only change after you've ridden.
+
 ### 🎨 Dynamic Vehicle Image
 A dedicated image entity automatically displays the correct CE 04 image based on your scooter's color code:
 
@@ -86,6 +93,8 @@ Note: The name of the image refers to the color code of your bike. If no match i
 The CE 04 has no built-in modem. It syncs to BMW's cloud through the **BMW Motorrad Connected** app on your phone (over Bluetooth), and this integration reads that cloud data via BMW's API.
 
 This means the data is **not real-time** — it's only as fresh as your last phone sync, plus the poll interval. Battery level, location and odometer can lag a ride or a charge until your phone next syncs with the bike. That's a property of how BMW delivers the data, not a limitation of the integration.
+
+Live bike data and ride history are fetched on **separate schedules** (live data frequently, ride history rarely), each adjustable under **Configure**, to stay within BMW's API limits.
 
 ---
 
@@ -195,14 +204,20 @@ The report includes configuration (with the token and client ID redacted), a rea
 
 ## 🤝 Contributing data
 
-Support for more BMW Motorrad models depends on seeing real data from them. If you'd like to help — **no Home Assistant or HACS required** — you can run a small standalone script that fetches and saves your bike's raw data:
+Support for more BMW Motorrad models depends on seeing real data from them. There are two easy ways to help — **no Home Assistant or HACS required**:
 
+**Option A — CarData export (no scripts, no Client ID):**
+Download your **CarData / GDPR data export** from your BMW account. It contains ready-made `cloudsync_bikes.json` and `cloudsync_recorded_tracks.json` files (plus BMW's own field dictionaries). Share `cloudsync_bikes.json` — it's the simplest, fully official route.
+
+**Option B — `dump_raw.py` (live fetch):**
 1. Download [`dump_raw.py`](custom_components/bmw_ce04/tools/dump_raw.py).
 2. Add your CarData Client ID at the top.
 3. Run `python3 dump_raw.py` (Python 3.8+; on HA OS, run `apk add python3` first).
 4. Log in via the printed URL and approve.
 
-The output is **masked by default** — VIN, ID hashes, GPS and the bike name are redacted, so it's safe to share — and is saved to `bmw_motorrad_dump.json`. Please mention your **model** and **market/region** when sharing it, since available fields and units vary by both.
+The script's output is **masked by default** — VIN, ID hashes, GPS and the bike name are redacted, so it's safe to share — and is saved to `bmw_motorrad_dump.json`. Please mention your **model** and **market/region** when sharing either file, since available fields and units vary by both.
+
+> **Field reference:** BMW's own definitions for every CloudSync field — and the electric-vs-combustion logic this integration relies on — are documented in [`docs/cloudsync_fields.md`](custom_components/bmw_ce04/docs/cloudsync_fields.md).
 
 ---
 
