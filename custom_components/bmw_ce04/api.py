@@ -21,8 +21,9 @@ from .const import (
     BIKES_ENDPOINT_TMPL,
     DEVICE_CODE_ENDPOINT,
     TOKEN_ENDPOINT,
+    TRACKS_ENDPOINT,
 )
-from .models import CE04Data
+from .models import CE04Data, RecordedTrack
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -262,10 +263,9 @@ class CE04ApiClient:
     # Data fetch
     # ------------------------------------------------------------------
 
-    async def async_get_bikes(self) -> list[CE04Data]:
-        await self.async_ensure_token()
-        url = f"{self._api_host}{BIKES_ENDPOINT_TMPL.format(country=self._country)}"
-        headers = {
+    def _app_headers(self) -> dict:
+        """Headers that make a request look like the BMW Motorrad app."""
+        return {
             "Authorization": f"Bearer {self._token.access_token}",
             "Accept": "application/json",
             "Content-Type": "application/json",
@@ -277,15 +277,20 @@ class CE04ApiClient:
             "Accept-Language": APP_ACCEPT_LANGUAGE,
         }
 
-        _LOGGER.debug("CE04 bikes request url=%s", url)
+    async def _authed_get_json(self, url: str, label: str) -> Any:
+        """GET a CloudSync URL with app headers, refreshing token on 401."""
+        await self.async_ensure_token()
+        headers = self._app_headers()
+
+        _LOGGER.debug("CE04 %s request url=%s", label, url)
 
         try:
             async with self._session.get(url, headers=headers, ssl=self._verify_ssl) as resp:
                 text = await resp.text()
-                _LOGGER.debug("CE04 bikes status=%s body=%s", resp.status, text)
+                _LOGGER.debug("CE04 %s status=%s body=%s", label, resp.status, text)
 
                 if resp.status == 401:
-                    _LOGGER.debug("401 from bikes endpoint, forcing token refresh")
+                    _LOGGER.debug("401 from %s endpoint, forcing token refresh", label)
                     await self.async_refresh_token()
                     headers["Authorization"] = f"Bearer {self._token.access_token}"
 
@@ -294,7 +299,8 @@ class CE04ApiClient:
                     ) as retry_resp:
                         retry_text = await retry_resp.text()
                         _LOGGER.debug(
-                            "CE04 bikes retry status=%s body=%s",
+                            "CE04 %s retry status=%s body=%s",
+                            label,
                             retry_resp.status,
                             retry_text,
                         )
@@ -302,21 +308,51 @@ class CE04ApiClient:
                             raise CE04AuthError(
                                 f"Unauthorized after refresh: {retry_resp.status} {retry_text}"
                             )
-                        data = await retry_resp.json(content_type=None)
-                        return self._parse_bikes(data)
+                        return await retry_resp.json(content_type=None)
 
                 if resp.status >= 400:
-                    raise CE04ApiError(f"Bike fetch failed: {resp.status} {text}")
+                    raise CE04ApiError(f"{label} fetch failed: {resp.status} {text}")
 
-                data = await resp.json(content_type=None)
-                return self._parse_bikes(data)
+                return await resp.json(content_type=None)
 
         except (CE04ApiError, CE04AuthError):
             raise
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            raise CE04ApiError(f"Network error fetching bikes: {err}") from err
+            raise CE04ApiError(f"Network error fetching {label}: {err}") from err
         except Exception as err:
-            raise CE04ApiError(f"Unexpected error fetching bikes: {err}") from err
+            raise CE04ApiError(f"Unexpected error fetching {label}: {err}") from err
+
+    async def async_get_bikes(self) -> list[CE04Data]:
+        url = f"{self._api_host}{BIKES_ENDPOINT_TMPL.format(country=self._country)}"
+        data = await self._authed_get_json(url, "bikes")
+        return self._parse_bikes(data)
+
+    async def async_get_recorded_tracks(self) -> list[RecordedTrack]:
+        url = f"{self._api_host}{TRACKS_ENDPOINT}"
+        data = await self._authed_get_json(url, "recordedtracks")
+        return self._parse_tracks(data)
+
+    def _parse_tracks(self, data: Any) -> list[RecordedTrack]:
+        """Parse the recordedTracks response, dropping deleted rides."""
+        if isinstance(data, dict):
+            if isinstance(data.get("recordedtracks"), list):
+                items = data["recordedtracks"]
+            elif isinstance(data.get("recordedTracks"), list):
+                items = data["recordedTracks"]
+            elif isinstance(data.get("items"), list):
+                items = data["items"]
+            else:
+                items = []
+        elif isinstance(data, list):
+            items = data
+        else:
+            raise CE04ApiError(f"Unexpected tracks payload type: {type(data)!r}")
+
+        return [
+            RecordedTrack.from_api(item)
+            for item in items
+            if isinstance(item, dict) and not item.get("_deleted")
+        ]
 
     def _parse_bikes(self, data: Any) -> list[CE04Data]:
         """Parse raw API response into CE04Data objects."""
