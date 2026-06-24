@@ -14,7 +14,7 @@
     <img src="https://img.shields.io/badge/Home--Assistant-Compatible-blueviolet.svg?style=for-the-badge&logo=home-assistant" alt="Home Assistant">
   </a>
   <a href="https://claude.ai">
-    <img src="https://img.shields.io/badge/Code%20reviewed%20with-Claude-D97757?style=for-the-badge&logo=claude&logoColor=fff" alt="Coding by Claude">
+    <img src="https://img.shields.io/badge/Coding%20by%20Claude-D97757?style=for-the-badge&logo=claude&logoColor=fff" alt="Coding by Claude">
   </a>
 </p>
 
