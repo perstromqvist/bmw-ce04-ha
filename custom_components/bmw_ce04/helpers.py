@@ -31,3 +31,13 @@ def km_from_meters(value: Any) -> float | None:
         return round(float(value) / 1000, 3)
     except Exception:
         return None
+
+
+def rnd(value: Any, ndigits: int = 1) -> float | None:
+    """Round a numeric value, returning None for missing/invalid input."""
+    if value is None:
+        return None
+    try:
+        return round(float(value), ndigits)
+    except Exception:
+        return None
