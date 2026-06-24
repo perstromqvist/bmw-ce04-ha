@@ -1,0 +1,32 @@
+Technical name,Description,Value Type,Range from - until,Unit
+ConnectedRide_CloudSync.cloudsync_bikes.itemId,Unique random identifier for each bike object.,string,,Example: 'cloudBike#ce7ce7eb-e3b0-42f5-af6a-584832d3599d'
+ConnectedRide_CloudSync.cloudsync_bikes._version,the initial version is 1 and is increased on every update of the data object. In case of a version conflict (when the client's object version is behind) the backend increas the version +2.,integer,1 .. ,Example: 1
+ConnectedRide_CloudSync.cloudsync_bikes._lastChangedAt,Unix timestamp of last modification in ms.,integer,0 .. ,Example: 1742486568808
+ConnectedRide_CloudSync.cloudsync_bikes._deleted,Value 'true' when the item was deleted. This information is needed in order to synchronize a delete request accross all customer devices.,bool,false .. true,null
+ConnectedRide_CloudSync.cloudsync_bikes.__typename,Describes the category of the data item (always 'CloudBike').,string,,Fix value.
+ConnectedRide_CloudSync.cloudsync_bikes.vehicleId,SHA256 hash of either the longVin (A-Kombi) or the shortVin (B-Kombi or LIN).,string,,Example: 'e62f5cb9e3856439ec14acdc84ad97df617d8602091a8bbec0662e568c324d2a'
+ConnectedRide_CloudSync.cloudsync_bikes.vin,Unique identifier of a motorbike. LongVin (17-digits) or ShortVin (7-digits). The longVin is the preferrable option.,string,,Example: 'WB10J8107LZG75077'
+ConnectedRide_CloudSync.cloudsync_bikes.hashedLongVin,SHA256 hash of the 17-digits VIN.,string,,Example: 'WB10J8107LZG75077'
+ConnectedRide_CloudSync.cloudsync_bikes.lastConnectedLat,Geoposition latitude of the location when the bike was disconnected from the BMW Motorrad Connected App.,float,-90 .. 90,Degrees
+ConnectedRide_CloudSync.cloudsync_bikes.lastConnectedLon,Geoposition longitude of the location when the bike was disconnected from the BMW Motorrad Connected App.,float,-180 .. 180,Degrees
+ConnectedRide_CloudSync.cloudsync_bikes.hashedShortVin,SHA256 hash of the 7-digits VIN.,string,,Example: '0b97c620476e862886e13b9e690ced293755d1d750250af37dc576f118a4290e'
+ConnectedRide_CloudSync.cloudsync_bikes.typeKey,Bike model identifier code.,string,,Example: '0C51'
+ConnectedRide_CloudSync.cloudsync_bikes.name,Default value is the model name. Can be changed to an individual name by the customer.,string,,Example: 'Black Pearl'
+ConnectedRide_CloudSync.cloudsync_bikes.vehicleType,B-Kombi vehicle type ID (1:1 relationship to the typeKey).,integer,0 .. 9999,Example: 125
+ConnectedRide_CloudSync.cloudsync_bikes.fuelLevel,Fuel level in percentage.,integer,0 .. 100,Percentage
+ConnectedRide_CloudSync.cloudsync_bikes.chargingMode,Used charging mode. Only possible value is 'ChargingMode_DcHvCharging'.,string,,null
+ConnectedRide_CloudSync.cloudsync_bikes.energyLevel,Battery state in percent for electric bikes.,integer,0 .. 100,Percentage
+ConnectedRide_CloudSync.cloudsync_bikes.remainingRangeElectric,Remaining range with current battery state for electric bikes.,integer,0 .. ,Meters
+ConnectedRide_CloudSync.cloudsync_bikes.chargingTimeEstimationElectric,Remaining charging time in minutes for electric bikes.,integer,0 .. ,Minutes
+ConnectedRide_CloudSync.cloudsync_bikes.lastConnectedTime,Last time the motorbike was connected via bluetooth.,integer,0 .. ,Example: 1747029561
+ConnectedRide_CloudSync.cloudsync_bikes.lastActivatedTime,Unix timestamp in seconds when map was activated for the next 6 month interval. If not activation happens in 6 month the access to the app / navigation will be blocked untill bike was connect again.,integer,0 .. ,Example: 1747029561
+ConnectedRide_CloudSync.cloudsync_bikes.nextServiceDueDate,Unix timestamp in seconds of next service due date from the bike.,integer,0 .. ,Example: 1747029561
+ConnectedRide_CloudSync.cloudsync_bikes.nextServiceRemainingDistance,Remaining distance until the next required service check from the bike in meters.,integer,,Meters
+ConnectedRide_CloudSync.cloudsync_bikes.tirePressureFront,Tire pressure front wheel from the bike in bar.,float,0 .. ,psi
+ConnectedRide_CloudSync.cloudsync_bikes.tirePressureRear,Tire pressure back wheel from the bike in bar.,float,0 .. ,psi
+ConnectedRide_CloudSync.cloudsync_bikes.totalMileage,Total mileage in meters.,integer,0 .. ,Meters
+ConnectedRide_CloudSync.cloudsync_bikes.trip1,Trip1 mileage from the bike in meters.,integer,0 .. ,Meters
+ConnectedRide_CloudSync.cloudsync_bikes.color,Color Code of the bike.,string,,Example: 'P0N2L'
+ConnectedRide_CloudSync.cloudsync_bikes.remainingRange,Remaining fuel range from the bike in meters.,integer,0 .. ,Meters
+ConnectedRide_CloudSync.cloudsync_bikes.totalConnectedDistance,Total mileage driven connected with the App in meters.,integer,0 .. ,Meters
+ConnectedRide_CloudSync.cloudsync_bikes.totalConnectedDuration,Total time driven connected with the App in seconds.,integer,0 .. ,Seconds
