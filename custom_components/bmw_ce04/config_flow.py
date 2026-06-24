@@ -16,14 +16,18 @@ from .const import (
     CONF_AUTH_HOST,
     CONF_CLIENT_ID,
     CONF_POLL_INTERVAL,
+    CONF_TRACKS_POLL_INTERVAL,
     CONF_VERIFY_SSL,
     DEFAULT_API_HOST,
     DEFAULT_AUTH_HOST,
     DEFAULT_POLL_INTERVAL,
+    DEFAULT_TRACKS_POLL_INTERVAL,
     DEFAULT_VERIFY_SSL,
     DOMAIN,
     MIN_POLL_INTERVAL,
     MAX_POLL_INTERVAL,
+    MIN_TRACKS_POLL_INTERVAL,
+    MAX_TRACKS_POLL_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -220,6 +224,12 @@ class CE04OptionsFlow(config_entries.OptionsFlow):
             CONF_POLL_INTERVAL,
             self.config_entry.data.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL),
         )
+        current_tracks = self.config_entry.options.get(
+            CONF_TRACKS_POLL_INTERVAL,
+            self.config_entry.data.get(
+                CONF_TRACKS_POLL_INTERVAL, DEFAULT_TRACKS_POLL_INTERVAL
+            ),
+        )
 
         return self.async_show_form(
             step_id="init",
@@ -228,6 +238,14 @@ class CE04OptionsFlow(config_entries.OptionsFlow):
                     vol.Optional(CONF_POLL_INTERVAL, default=current): vol.All(
                         cv.positive_int,
                         vol.Range(min=MIN_POLL_INTERVAL, max=MAX_POLL_INTERVAL),
+                    ),
+                    vol.Optional(
+                        CONF_TRACKS_POLL_INTERVAL, default=current_tracks
+                    ): vol.All(
+                        cv.positive_int,
+                        vol.Range(
+                            min=MIN_TRACKS_POLL_INTERVAL, max=MAX_TRACKS_POLL_INTERVAL
+                        ),
                     ),
                 }
             ),
