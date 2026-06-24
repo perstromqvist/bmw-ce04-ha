@@ -1,0 +1,30 @@
+Technical name,Description,Value Type,Range from - until,Unit
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.itemId,Unique random identifier for each recorded track object.,string,,Example: 'CloudRecordedTrack#433c9581-2715-4bf7-b5ed-fc98e8ed6d47'
+ConnectedRide_CloudSync.cloudsync_recorded_tracks._version,the initial version is 1 and is increased on every update of the data object. In case of a version conflict (when the client's object version is behind) the backend increas the version +2.,integer,1 .. ,Example: 1
+ConnectedRide_CloudSync.cloudsync_recorded_tracks._lastChangedAt,Unix timestamp of last modification in ms.,integer,0 .. ,Example: 1742486568808
+ConnectedRide_CloudSync.cloudsync_recorded_tracks._deleted,Value 'true' when the item was deleted. This information is needed in order to synchronize a delete request accross all customer devices.,bool,false .. true,null
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.__typename,Describes the category of the data item (always 'CloudRecordedTrack').,string,,Fix value.
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.title,Title of the recorded track.,string,,Example: 'Alps tour 2025'
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.isFavorite,If the trip is a favorite. Possible values true and false.,bool,false .. true,false
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.recording,if recording is active. Possible values true and false.,bool,false .. true,false
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.bikeId,Bike which was driven to record a ride.,string,,Example: '1986eb340c257ca32e7ac18c9dbf690d5c36942fa72099f9bcd4ff23b4804469'
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.startTimestamp,Unix timestamp in seconds when the trip started.,integer,0 .. ,Example: 1725253666
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.startLat,Latitude value of the start position.,float,-90 .. 90,Degrees
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.startLon,Geoposition longitude value of the recorded track start position.,float,-180 .. 180,Degrees
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.endTimestamp,Unix timestamp in seconds when the trip ended.,integer,0 .. ,Example: 1725255567
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.endLat,Latitude value of the end position.,float,-90 .. 90,Degrees
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.endLon,Geoposition longitude value of the recorded track stop position.,float,-180 .. 180,Degrees
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.rideDistance,distance of the trip in meters.,integer,0 .. ,Meters
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.rideTime,Riding time of the trip in seconds.,integer,0 .. ,Seconds
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.speedAverageKmh,Average speed of the trip in km/h.,float,0 .. ,km/h
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.speedMaxKmh,Max speed of the trip in km/h.,float,0 .. ,km/h
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.temperatureMaxC,Max outside temperature in C of the trip.,integer,,Degrees
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.temperatureMinC,Min outside temperature in C of the trip.,integer,,Degrees
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.elevationMaxM,Max elevation of the trip in meters.,integer,,Meters
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.elevationMinM,Min elevation of the trip in meters.,integer,,Meters
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.engineMaxRpm,Max engine rpm of the trip.,integer,0 .. ,rpm
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.leanAngleLeftMax,Maximum lean angle to the left in degree.,float,0 .. ,Degrees
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.leanAngleRightMax,Maximum lean angle to the right in degree.,float,0 .. ,Degrees
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.accelerationMax,Maximum acceleration in g.,float,0 .. ,Example: 1.2
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.decelerationMax,Maximum deceleration in g.,float,0 .. ,Example: 0.9
+ConnectedRide_CloudSync.cloudsync_recorded_tracks.trackSegments,This object contains the list of track segment file pointers with meta information of the recorded trip incl. the filename which can be found in subfolder 'ProtocolBuffers' and the filesize.,list,,
