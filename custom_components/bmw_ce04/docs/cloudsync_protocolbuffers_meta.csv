@@ -1,0 +1,95 @@
+Technical name,Description,Value Type,Range from - until,Unit
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_timestampInMillis,[protocol buffers field 1] timestamp when bike VDS data was taken.,int64,0 .. ,Unix Timestamp
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionMapMatchedLatitude,[protocol buffers field 2] Matched latitide value on the map.,float,-90 .. 90,Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionMapMatchedLongitude,[protocol buffers field 3] Matched longitude value on the map.,float,-180 .. 180,Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionMapMatchedElevation,[protocol buffers field 4] Matched elevation value on the map.,float,,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionMapMatchedHeading,[protocol buffers field 5]  Matched heading value on the map.,float,,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionMapMatchedHorizontalAccuracy,[protocol buffers field 6]  Matched horizontal accuracy value on the map.,int32,,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionMapMatchedVerticalAccuracy,[protocol buffers field 7]  Matched vertical accuracy value on the map.,int32,,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionMapMatchedSpeed,[protocol buffers field 8]  Matched speed value on the map.,float,0 .. ,km/h
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionRawLatitude,[protocol buffers field 9]  Raw VDS latitide value from bike.,float,-90 .. 90,Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionRawLongitude,[protocol buffers field 10]  Raw VDS longitude value from bike.,float,-180 .. 180,Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionRawElevation,[protocol buffers field 11]  Raw VDS elevation value from bike.,float,,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionRawHeading,[protocol buffers field 12]  Raw VDS heading value from bike.,float,,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionRawHorizontalAccuracy,[protocol buffers field 13]  Raw VDS horizontal accuracy value from bike.,int32,,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionRawVerticalAccuracy,[protocol buffers field 14]  Raw VDS vertical accuracy value from bike.,int32,,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionRawSpeed,[protocol buffers field 15]  Raw VDS speed value from bike.,float,0 .. ,km/h
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_positionRawStatus,[protocol buffers field 16]  Raw VDS position status value from bike.,int32,,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_energyActualConsumptionCombustion,[protocol buffers field 17]  Actual consumption combustion of the bike's engine.,float,0 .. ,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_energyAverageConsumptionCombustion,[protocol buffers field 18]  Average consumption combustion of the bike's engine.,float,0 .. ,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_energyAverageConsumptionElectric,[protocol buffers field 19]  Average consumption electric of the bike's engine.,float,0 .. ,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_energyAverageConsumptionForRangeCalculationCombustion,[protocol buffers field 20]  Average consumption for range calculation of the bike's engine.,float,0 .. ,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_energyEnergyLevel,[protocol buffers field 21]  Energy level of the bike.,float,0 .. 100,Percentage
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_energyRange,[protocol buffers field 22]  Remaining range.,int32,0 .. ,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_ridingAbsBraking,[protocol buffers field 23]  Riding ABS braking of the bike.,int32,,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_ridingAscControl,[protocol buffers field 24]  Riding ACS control of the bike.,int32,,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_ridingEngineSpeed,[protocol buffers field 25]  Riding engine speed of the bike.,int32,0 .. ,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_ridingGear,[protocol buffers field 26]  Riding gear of the bike.,int32,,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_ridingThrottleValue,[protocol buffers field 27]  Riding vehicle speed of the bike.,float,0 .. ,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_ridingTotalMileage,[protocol buffers field 28]  Total milage of the bike.,int32,0 .. ,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_ridingTrip1,[protocol buffers field 29]  Trip1 value of the bike.,int32,0 .. ,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_ridingTrip2,[protocol buffers field 30]  Trip2 value of the bike.,int32,0 .. ,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_ridingVehicleSpeed,[protocol buffers field 31]  Riding vehicle speed of the bike.,float,0 .. ,km/h
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_sensorsAccelerationLateral,[protocol buffers field 32]  Sensors acceleration lateral of the bike.,float,,m/s^2
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_sensorsAccelerationLongitudinal,[protocol buffers field 33]  Sensors acceleration longitudinal of the bike.,float,,m/s^2
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_sensorsAccelerationVertical,[protocol buffers field 34]  Sensors acceleration vertical of the bike.,float,,m/s^2
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_sensorsBankingAngle,[protocol buffers field 35]  Sensors banking angle of the bike,float,,Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_sensorsBreakPressureFront,[protocol buffers field 36]  Sensors break pressure front of the bike,float,0 .. ,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_sensorsBreakPressureRear,[protocol buffers field 37]  Sensors break pressure rear of the bike,float,,0
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_sensorsEngineTemperature,[protocol buffers field 38]  Sensors engine temperature of the bike,float,,C Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_sensorsOutsideTemperature,[protocol buffers field 39]  Sensors outside temperature of the bike,float,,C Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_sensorsTirePressureFront,[protocol buffers field 40]  Sensors tire pressure front of the bike,float,0 .. ,psi
+ConnectedRide_CloudSync.ProtocolBuffers.BikeVdsData_sensorsTirePressureRear,[protocol buffers field 41]  Sensors tire pressure rear of the bike,float,0 .. ,psi
+ConnectedRide_CloudSync.ProtocolBuffers.Trip_beginTimeInMillis,[protocol buffers field 1] Start time of the trip in miliseconds,int64,0 .. ,Unix Timestamp in Milliseconds
+ConnectedRide_CloudSync.ProtocolBuffers.Trip_endTimeInMillis,[protocol buffers field 2] End time of the trip in miliseconds,int64,0 .. ,Unix Timestamp in Milliseconds
+ConnectedRide_CloudSync.ProtocolBuffers.Trip_favorite,[protocol buffers field 3] If it is a favorite trip,bool,false .. true,false
+ConnectedRide_CloudSync.ProtocolBuffers.Trip_name,[protocol buffers field 4] Name of the trip,string,,0
+ConnectedRide_CloudSync.ProtocolBuffers.Trip_minTemp,[protocol buffers field 5] Minimum temperature during the trip,int32,,C Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.Trip_maxTemp,[protocol buffers field 6] Maximum temperature during the trip,int32,,C Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.Trip_maxSpeed,[protocol buffers field 7] Maximum speed during the trip in km/h,float,0 .. ,km/h
+ConnectedRide_CloudSync.ProtocolBuffers.Trip_avgSpeed,[protocol buffers field 8] Average speed during the trip in km/h,float,0 .. ,km/h
+ConnectedRide_CloudSync.ProtocolBuffers.Trip_length,[protocol buffers field 9] Length of the trip,int32,0 .. ,Meters
+ConnectedRide_CloudSync.ProtocolBuffers.Trip_drivingTime,[protocol buffers field 10] Time the trip took,int64,0 .. ,Seconds
+ConnectedRide_CloudSync.ProtocolBuffers.Trip_segments,[protocol buffers field 11] Segment of the trip,repeated TrackSegment,,TrackSegment
+ConnectedRide_CloudSync.ProtocolBuffers.Trip_images,[protocol buffers field 12] Image asociated with the trip,repeated Image,,Image
+ConnectedRide_CloudSync.ProtocolBuffers.Trip_bikeVdsDatas,[protocol buffers field 13] Dynamic bike data,repeated BikeVdsData,,BikeVdsData
+ConnectedRide_CloudSync.ProtocolBuffers.Trip_bikeId,[protocol buffers field 14] Internal id of the bike,bytes,,0
+ConnectedRide_CloudSync.ProtocolBuffers.TrackSegment_trackPoints,[protocol buffers field 1] Repeated track points,repeated TrackPoint,,TrackPoint
+ConnectedRide_CloudSync.ProtocolBuffers.TrackSegment_extendedTrackPoints,[protocol buffers field 2] Repeated further track points from a track segment,repeated BikeVdsData,,BikeVdsData
+ConnectedRide_CloudSync.ProtocolBuffers.TrackSegment_vehicleId,[protocol buffers field 3] Internal vehicle identifier. SHA256 of either shortVin or longVin.,bytes,,Example: '2105b648a61c6bdfaacc8a82c27256366faa613e719355f17d71fd2c4b5475e5'
+ConnectedRide_CloudSync.ProtocolBuffers.TrackSegment_longVin,[protocol buffers field 4] Vehicle Identification Number,string,,Example: 'WB10J8107LZG75077'
+ConnectedRide_CloudSync.ProtocolBuffers.TrackSegment_segmentType,[protocol buffers field 5] Standard street routing or offroad,enum,,"DEFAULT = 0;OFFROAD = 1;"
+ConnectedRide_CloudSync.ProtocolBuffers.TrackPoint_timestampInMillis,[protocol buffers field 1] Timestamp of a track point,int64,0 .. ,Unix timestamp in milliseconds
+ConnectedRide_CloudSync.ProtocolBuffers.TrackPoint_latitude,[protocol buffers field 2] Latitude of a track point,float,-90 .. 90,Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.TrackPoint_longitude,[protocol buffers field 3] Longitude of a track point,float,-180 .. 180,Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.TrackPoint_speed,[protocol buffers field 4] Speed at the track point,float,0 .. ,km/h
+ConnectedRide_CloudSync.ProtocolBuffers.TrackPoint_elevation,[protocol buffers field 5] Elevation of the track point,int32,,0
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRoute_source,[protocol buffers field 1] Source of the planned route,enum,,"IMPORTED = 0;PLANNED = 1;IMPORTED_AS_WAYPOINTS=2"
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRoute_routeCalculationSettings,[protocol buffers field 2] Setting of the route calculation,RouteSettings,,RouteSettings (see below)
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRoute_title,[protocol buffers field 4] Title of the planned route,string,,0
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRoute_creationDate,[protocol buffers field 3] Creation date of the planned route,int64,0 .. ,Unix Timestamp in seconds
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRoute_estimatedDurationInSeconds,[protocol buffers field 5] Estimated time the planned route takes in seconds,int32,0 .. ,Seconds
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRoute_estimatedLengthInMeters,[protocol buffers field 6] Estimated length of the planned route,int32,0 .. ,Meters
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRoute_waypoints,[protocol buffers field 7] List of waypoints to describe the route,repeated PlannedRouteWaypoint,,0
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRoute_trackpoints,[protocol buffers field 8] List of trackpoints to describe the route,repeated PlannedRouteTrackpoint,,0
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRouteWaypoint_latitude,[protocol buffers field 1] Latitude of a waypoint on the planned route,Float,-90 .. 90,Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRouteWaypoint_longitude,[protocol buffers field 2] Longitude of a waypoint on the planned route,float,-180 .. 180,Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRouteWaypoint_title,[protocol buffers field 3] Title of the waypoint on the planned route,string,,Weekend tour'
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRouteWaypoint_address,[protocol buffers field 4] Address of the waypoint on the planned route,string,,Petuelring 130'
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRouteTrackpoint_latitude,[protocol buffers field 1] Latitude of the trackpoint on the planned route,float,-90 .. 90,Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRouteTrackpoint_longitude,[protocol buffers field 2] Llongitude of the trackpoint on the planned route,float,-180 .. 180,Degrees
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRouteTrackpoint_elevationInMeters,[protocol buffers field 3] Evelation of the trackpoint on the planned route,int32,,0
+ConnectedRide_CloudSync.ProtocolBuffers.PlannedRouteTrackpoint_timestampInMillis,[protocol buffers field 4] Timestamp of trackpoint on planned route,int64,0 .. ,0
+ConnectedRide_CloudSync.ProtocolBuffers.RouteSettings_routeType,[protocol buffers field 1] Route type settings,enum,,"FASTEST = 0;SHORTEST = 1;CURVY = 2;ECO = 3"
+ConnectedRide_CloudSync.ProtocolBuffers.RouteSettings_curvynessAmount,[protocol buffers field 2] Curvyness setting for the route,enum,,"CURVYNESS_LOW = 0;CURVYNESS_MEDIUM = 1;CURVYNESS_HIGH = 2"
+ConnectedRide_CloudSync.ProtocolBuffers.RouteSettings_avoidMotorways,[protocol buffers field 3] Option to avoid motorways for the route,enum,,"ALLOW = 0;AVOID = 1;FORBID = 2"
+ConnectedRide_CloudSync.ProtocolBuffers.RouteSettings_avoidTollRoads,[protocol buffers field 4] Option to avoid toll roads for the route,enum,,"ALLOW = 0;AVOID = 1;FORBID = 2"
+ConnectedRide_CloudSync.ProtocolBuffers.RouteSettings_avoidDirtRoads,[protocol buffers field 5] Option to avoid dirt roads for the route,enum,,"ALLOW = 0;AVOID = 1;FORBID = 2"
+ConnectedRide_CloudSync.ProtocolBuffers.RouteSettings_avoidFerries,[protocol buffers field 6] Option to avoid ferries for the route,enum,,"ALLOW = 0;AVOID = 1;FORBID = 2"
+ConnectedRide_CloudSync.ProtocolBuffers.RouteSettings_avoidTunnels,[protocol buffers field 7] option to avoid tunnels for the route,enum,,"ALLOW = 0;AVOID = 1;FORBID = 2"
+ConnectedRide_CloudSync.ProtocolBuffers.RouteSettings_transportMode,[protocol buffers field 9] Transportation option,enum,,"VEHICLE = 0;PEDESTRIAN = 1"
+ConnectedRide_CloudSync.ProtocolBuffers.RouteSettings_hilliness,[protocol buffers field 10] Level of hillingness,enum,,"HILLINESS_IGNORE = 0;HILLINESS_AVOID = 1;HILLINESS_PREFER = 2"
+ConnectedRide_CloudSync.ProtocolBuffers.RouteSettings_avoidBorderCrossings,[protocol buffers field 11] Option to avoid border crossings.,enum,,"HILLINESS_IGNORE = 0;HILLINESS_AVOID = 1;HILLINESS_PREFER = 2"
+ConnectedRide_CloudSync.ProtocolBuffers.RouteSettings_avoidAlreadyUsedRoads,[protocol buffers field 12] Option to avoid already used roads.,enum,,"HILLINESS_IGNORE = 0;HILLINESS_AVOID = 1;HILLINESS_PREFER = 2"
+ConnectedRide_CloudSync.ProtocolBuffers.RouteSettings_avoidCarTrains,[protocol buffers field 13] Option to avoid car trains.,enum,,"HILLINESS_IGNORE = 0;HILLINESS_AVOID = 1;HILLINESS_PREFER = 2"
+ConnectedRide_CloudSync.ProtocolBuffers.Settings_dynamicRoutingEnabled,[protocol buffers field 4] Option to enable dynamic routing for the route.,bool,false .. true,true
