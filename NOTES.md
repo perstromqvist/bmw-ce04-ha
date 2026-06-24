@@ -19,6 +19,11 @@ integration model-neutral (`bmw_motorrad`) instead of CE 04-specific.
 
 Fields returned for a bike, per BMW's data dictionary.
 
+> For BMW's **complete, official** field definitions (bikes, recorded tracks, and
+> the protobuf GPS schema), see [`docs/cloudsync_fields.md`](custom_components/bmw_ce04/docs/cloudsync_fields.md)
+> and the original `*_meta.csv` dictionaries from the CarData export alongside it.
+> The table below is the working subset this integration uses.
+
 | Field | Type | Unit | Meaning |
 |-------|------|------|---------|
 | `itemId` | string | — | Unique random ID for the bike object (`CloudBike#<uuid>`). Account-linked. |
