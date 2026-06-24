@@ -18,6 +18,7 @@ CONF_COUNTRY = "country"
 CONF_API_HOST = "api_host"
 CONF_AUTH_HOST = "auth_host"
 CONF_POLL_INTERVAL = "poll_interval"
+CONF_TRACKS_POLL_INTERVAL = "tracks_poll_interval"
 CONF_VERIFY_SSL = "verify_ssl"
 
 # ---------------------------------------------------------------------------
@@ -32,6 +33,12 @@ DEFAULT_VERIFY_SSL = True
 
 MIN_POLL_INTERVAL = 600
 MAX_POLL_INTERVAL = 3600
+
+# Recorded tracks change rarely (only after a ride), so they poll on their own,
+# much slower schedule. Default 3 h; configurable between 30 min and 24 h.
+DEFAULT_TRACKS_POLL_INTERVAL = 10800  # 3 hours
+MIN_TRACKS_POLL_INTERVAL = 1800       # 30 min
+MAX_TRACKS_POLL_INTERVAL = 86400      # 24 h
 
 # ---------------------------------------------------------------------------
 # Attributes
@@ -58,6 +65,9 @@ TOKEN_ENDPOINT = "/gcdm/oauth/token"
 # BMW moved the bike data from cpp.bmw-motorrad.com to the ConnectedRide
 # CloudSync API. No country segment any more; a limit query param instead.
 BIKES_ENDPOINT_TMPL = "/cnrd/cloudsync/v2/bikes?limit=200"
+# Recorded rides (trip history). Same auth/headers as bikes; wrapper key is
+# the lowercase "recordedtracks".
+TRACKS_ENDPOINT = "/cnrd/cloudsync/v2/recordedTracks?limit=200"
 
 # ---------------------------------------------------------------------------
 # App-identifying headers
