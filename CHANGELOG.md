@@ -7,13 +7,15 @@ project aims to follow [Semantic Versioning](https://semver.org/).
 
 <!-- Dates are approximate — adjust to your actual release dates. -->
 
-## [1.5.5]
+## [1.6.0]
+### Added
+- Ride history from BMW CloudSync: "Last ride" (distance + rich attributes: speed, lean angle, temp, elevation, rpm) and "Ride stats" (count, monthly count, total distance, longest ride, top speed, max lean). Separate, configurable poll interval (default 3h) under Options.
 
+## [1.5.5]
 ### Fixed
 - BMW moved the bike data to a new endpoint (ConnectedRide CloudSync); the old host now returns 403. Updated host/path, added the app's request headers, and auto-migrate existing installs to the new endpoint.
 
 ## [1.5.4] - 2026-06-04
-
 ### Added
 - `tools/dump_raw.py` and a "Contributing data" guide for sharing a (masked) raw dump without Home Assistant.
 - `tools/check_auth.py` and `tools/dump_raw.py` now include Windows/macOS run instructions.
@@ -22,7 +24,6 @@ project aims to follow [Semantic Versioning](https://semver.org/).
 - README: corrected the vehicle-image setup note, the `force_update` parameters, and the diagnostics description.
 
 ## [1.5.3] — 2026-06-03
-
 ### Fixed
 - Charging detection now matches BMW's actual `chargingMode` value
   (`ChargingMode_DcHvCharging`). The CE 04 AC-charges and rarely reports this
